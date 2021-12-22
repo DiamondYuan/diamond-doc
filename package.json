@@ -4,5 +4,9 @@
   "main": "index.js",
   "repository": "git@github.com:DiamondYuan/diamond-doc.git",
   "author": "DiamondYuan <admin@diamondyuan.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  }
 }
