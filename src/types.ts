@@ -8,6 +8,10 @@ export interface Operation {
 }
 
 export interface DiamondStructureConstructor<T> {
+  /**
+   * Each type has a different id
+   */
+  id: string;
   new (): T;
 }
 
