@@ -1,21 +1,24 @@
-interface Clock {}
+export interface Clock {
+  readonly actorId: string;
+  readonly number: number;
+}
 
-interface Operation {
+export interface Operation {
   id: Clock;
 }
 
-interface DiamondStructureConstructor<T> {
+export interface DiamondStructureConstructor<T> {
   new (): T;
 }
 
-interface DiamondStructure {}
+export interface DiamondStructure {}
 
-interface Version {
+export interface DiamondDocVersion {
   [key: string]: number;
 }
-interface DiamondDoc {
-  version: Version;
+export interface IDiamondDoc {
+  readonly version: DiamondDocVersion;
   readonly operations: Operation[];
   get<T>(name: string, factory: DiamondStructureConstructor<T>): T;
-  merge(other: DiamondDoc): this;
+  merge(other: IDiamondDoc): this;
 }

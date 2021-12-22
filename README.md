@@ -1,1 +1,1 @@
-# diamond-doc
+# DiamondDoc
