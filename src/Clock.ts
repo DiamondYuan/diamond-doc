@@ -12,8 +12,13 @@ export enum Ordering {
   Less,
 }
 
+export interface IClock {
+  actorId: string;
+  counter: number;
+}
+
 /** Implements a Lamport Clock */
-export class Clock {
+export class Clock implements IClock {
   actorId: string;
   counter: number;
 

@@ -1,10 +1,6 @@
-export interface Clock {
-  readonly actorId: string;
-  readonly number: number;
-}
-
+import { IClock } from "./clock";
 export interface Operation {
-  id: Clock;
+  id: IClock;
 }
 
 export interface DiamondStructureConstructor<T> {
