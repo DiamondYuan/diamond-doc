@@ -16,7 +16,6 @@ interface Version {
 interface DiamondDoc {
   version: Version;
   readonly operations: Operation[];
-  create<T>(name: string, factory: DiamondStructureConstructor<T>): T;
-  getByVersion(version: Version): DiamondDoc;
+  get<T>(name: string, factory: DiamondStructureConstructor<T>): T;
   merge(other: DiamondDoc): this;
 }
