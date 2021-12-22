@@ -10,8 +10,13 @@ interface DiamondStructureConstructor<T> {
 
 interface DiamondStructure {}
 
+interface Version {
+  [key: string]: number;
+}
 interface DiamondDoc {
-  create<T>(name: string, factory: DiamondStructureConstructor<T>): T;
+  version: Version;
   readonly operations: Operation[];
+  create<T>(name: string, factory: DiamondStructureConstructor<T>): T;
+  getByVersion(version: Version): DiamondDoc;
   merge(other: DiamondDoc): this;
 }
