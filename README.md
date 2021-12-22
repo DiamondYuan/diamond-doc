@@ -2,6 +2,8 @@
 
 > This code is currently a work in progress. Do not use it in production.
 
+DiamondDoc is an State-based CRDT Types (CvCRDT).
+
 ## Why not
 
 ### Yjs
