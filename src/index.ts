@@ -13,7 +13,10 @@ export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
   private ctx: IDiamondDocContext;
   private _clock: Clock;
-  constructor(_operations: Operation[]) {
+  constructor(
+    _operations: Operation[],
+    ctors: DiamondStructureCtor<DiamondStructure>[]
+  ) {
     this._clock = new Clock(generateUuid());
     this._operations = _operations;
     this.ctx = {
