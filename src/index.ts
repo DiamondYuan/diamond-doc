@@ -29,9 +29,10 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   get<T extends DiamondStructure>(
-    name: string,
-    Factory: DiamondStructureCtor<T>
+    Factory: DiamondStructureCtor<T>,
+    structureName?: string
   ): T {
+    const name: string = structureName ?? this._clock.tick().toString();
     return new Factory(name, this.ctx);
   }
 

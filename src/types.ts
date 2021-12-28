@@ -32,8 +32,8 @@ export interface DiamondStructure {
 export interface IDiamondDoc {
   readonly operations: Operation[];
   get<T extends DiamondStructure>(
-    structureName: string,
-    ctor: DiamondStructureCtor<T>
+    ctor: DiamondStructureCtor<T>,
+    structureName?: string
   ): T;
   merge(other: IDiamondDoc): this;
 }
