@@ -7,6 +7,7 @@ import {
   DiamondStructureCtor,
   IDiamondDocContext,
 } from "./types";
+import { mergeAndSortOperations } from "./utils/merge";
 
 export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
@@ -35,6 +36,11 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   merge(other: IDiamondDoc) {
+    const _operations = mergeAndSortOperations(
+      this._operations,
+      other.operations
+    );
+    this._operations = _operations;
     return this;
   }
 }
