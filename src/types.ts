@@ -1,24 +1,39 @@
 import { IClock } from "./clock";
 export interface Operation {
   id: IClock;
+  structureName: string;
+  structureCtorId: string;
 }
 
-export interface DiamondStructureConstructor<T> {
+export interface IDiamondDocContext {
+  tick: () => IClock;
+  appendOperation(operation: Operation): void;
+}
+
+export interface DiamondStructureCtor<T extends DiamondStructure> {
   /**
    * Each type has a different id
    */
-  id: string;
-  new (): T;
+  readonly structureCtorId: string;
+  new (structureName: string, context: IDiamondDocContext): T;
 }
 
-export interface DiamondStructure {}
+const update: unique symbol = Symbol("update");
 
-export interface DiamondDocVersion {
-  [key: string]: number;
+export interface DiamondStructureUpdateOptions {}
+export interface DiamondStructure {
+  /**
+   *
+   */
+  readonly structureName: string;
+  [update](operations: Operation): this;
 }
+
 export interface IDiamondDoc {
-  readonly version: DiamondDocVersion;
   readonly operations: Operation[];
-  get<T>(name: string, factory: DiamondStructureConstructor<T>): T;
+  get<T extends DiamondStructure>(
+    structureName: string,
+    factory: DiamondStructureCtor<T>
+  ): T;
   merge(other: IDiamondDoc): this;
 }

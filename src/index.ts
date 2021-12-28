@@ -1,28 +1,37 @@
+import { Clock } from "./clock";
+import { generateUuid } from "./uuid";
 import {
   IDiamondDoc,
   Operation,
-  DiamondDocVersion,
-  DiamondStructureConstructor,
+  DiamondStructure,
+  DiamondStructureCtor,
+  IDiamondDocContext,
 } from "./types";
 
 export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
-  private _version: DiamondDocVersion;
+  private ctx: IDiamondDocContext;
+  private _clock: Clock;
   constructor(_operations: Operation[]) {
+    this._clock = new Clock(generateUuid());
     this._operations = _operations;
-    this._version = {};
-  }
-
-  get version() {
-    return this._version;
+    this.ctx = {
+      tick: () => this._clock.tick(),
+      appendOperation: (operation) => {
+        this._operations.push(operation);
+      },
+    };
   }
 
   get operations() {
     return this._operations;
   }
 
-  get<T>(name: string, Factory: DiamondStructureConstructor<T>) {
-    return new Factory();
+  get<T extends DiamondStructure>(
+    name: string,
+    Factory: DiamondStructureCtor<T>
+  ): T {
+    return new Factory(name, this.ctx);
   }
 
   merge(other: IDiamondDoc) {
