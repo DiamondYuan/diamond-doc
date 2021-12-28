@@ -18,7 +18,7 @@ export interface DiamondStructureCtor<T extends DiamondStructure> {
   new (structureName: string, context: IDiamondDocContext): T;
 }
 
-const update: unique symbol = Symbol("update");
+export const update: unique symbol = Symbol("update");
 
 export interface DiamondStructureUpdateOptions {}
 export interface DiamondStructure {
@@ -26,14 +26,14 @@ export interface DiamondStructure {
    *
    */
   readonly structureName: string;
-  [update](operations: Operation): this;
+  [update](operations: Operation[]): this;
 }
 
 export interface IDiamondDoc {
   readonly operations: Operation[];
   get<T extends DiamondStructure>(
     structureName: string,
-    factory: DiamondStructureCtor<T>
+    ctor: DiamondStructureCtor<T>
   ): T;
   merge(other: IDiamondDoc): this;
 }
