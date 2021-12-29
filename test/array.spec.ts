@@ -17,11 +17,16 @@ it("test map", () => {
 
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
 
+  const n = 60000;
+  console.time(`insert ${n}`);
   for (let i = 0; i < 60000; i++) {
     const index = Math.floor(Math.random() * i);
     localArray.insert(index, `${i}`);
   }
+  console.timeEnd(`insert ${n}`);
+  console.time(`merge ${n}`);
   remote.merge(local);
+  console.timeEnd(`merge ${n}`);
 
   expect(local.operations).toEqual(remote.operations);
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
