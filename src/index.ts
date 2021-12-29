@@ -85,6 +85,7 @@ export class DiamondDoc implements IDiamondDoc {
         o.structureName,
         () => []
       ).push(o);
+      this._clock = this._clock.merge(o.id as Clock);
     });
     for (const [structureCtorId, structuresMap] of operationsMap.entries()) {
       for (const [
