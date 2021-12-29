@@ -15,7 +15,6 @@ export enum Ordering {
 export interface IClock {
   actorId: string;
   counter: number;
-  toString(): string;
 }
 
 /** Implements a Lamport Clock */

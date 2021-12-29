@@ -1,12 +1,12 @@
-import { IClock } from "./clock";
+import { Clock } from "./clock";
 export interface Operation {
-  id: IClock;
+  id: Clock;
   structureName: string;
   structureCtorId: string;
 }
 
 export interface IDiamondDocContext {
-  tick: () => IClock;
+  tick: () => Clock;
   appendOperation(operation: Operation): void;
 }
 
@@ -22,9 +22,6 @@ export const update: unique symbol = Symbol("update");
 
 export interface DiamondStructureUpdateOptions {}
 export interface DiamondStructure {
-  /**
-   *
-   */
   readonly structureName: string;
   [update](operations: Operation[]): this;
 }

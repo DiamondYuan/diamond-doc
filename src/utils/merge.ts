@@ -17,10 +17,10 @@ export function mergeAndSortOperations(
   return result.sort((a, b) => {
     if (a.id > b.id) {
       return 1;
-    } else if (a.id === b.id) {
-      // TODO update message
-      throw new Error("");
+    } else if (a.id < b.id) {
+      return -1;
     }
-    return -1;
+    /* istanbul ignore next */
+    throw new Error("fatal error.");
   });
 }

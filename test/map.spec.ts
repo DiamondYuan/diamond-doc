@@ -30,4 +30,7 @@ it("test map", () => {
 
   expect(local.operations).toEqual(remote.operations);
   expect(local.version).toEqual(remote.version);
+
+  const v = local.get(DMap);
+  expect(v.structureName.startsWith("0000000003")).toBeTruthy();
 });

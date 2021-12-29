@@ -6,7 +6,8 @@
   "author": "DiamondYuan <admin@diamondyuan.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "cov": "jest  --collect-coverage"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
