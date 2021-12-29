@@ -7,6 +7,7 @@ import {
   DiamondStructureCtor,
   IDiamondDocContext,
   update,
+  IDiamondDocVersion,
 } from "./types";
 import { mergeAndSortOperations } from "./utils/merge";
 import { getOrCreateFromMap } from "./utils/get-or-create";
@@ -18,6 +19,15 @@ export class DiamondDoc implements IDiamondDoc {
   private ctorMap: Map<string, DiamondStructureCtor<DiamondStructure>> =
     new Map();
   private structureMap: Map<string, Map<string, DiamondStructure>> = new Map();
+  private vendorClock: Map<string, number> = new Map();
+
+  get version(): IDiamondDocVersion {
+    const version: IDiamondDocVersion = {};
+    for (const [actorId, counter] of this.vendorClock.entries()) {
+      version[actorId] = counter;
+    }
+    return version;
+  }
   constructor(
     _operations: Operation[],
     ctors: DiamondStructureCtor<DiamondStructure>[]
@@ -66,6 +76,9 @@ export class DiamondDoc implements IDiamondDoc {
     // Map<structureCtorId,<structureCtorId,DiamondStructure>>
     const operationsMap: Map<string, Map<string, Operation[]>> = new Map();
     operations.forEach((o) => {
+      let clock = this.vendorClock.get(o.id.actorId) ?? o.id.counter;
+      clock = Math.max(clock, o.id.counter);
+      this.vendorClock.set(o.id.actorId, clock);
       getOrCreateFromMap<Operation[]>(
         operationsMap,
         o.structureCtorId,

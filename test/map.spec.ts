@@ -29,4 +29,5 @@ it("test map", () => {
   expect(expectEquals(localMap)).toEqual(expectEquals(localReloadMap));
 
   expect(local.operations).toEqual(remote.operations);
+  expect(local.version).toEqual(remote.version);
 });

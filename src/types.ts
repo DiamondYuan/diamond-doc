@@ -29,7 +29,11 @@ export interface DiamondStructure {
   [update](operations: Operation[]): this;
 }
 
+export interface IDiamondDocVersion {
+  [actorId: string]: number;
+}
 export interface IDiamondDoc {
+  readonly version: IDiamondDocVersion;
   readonly operations: Operation[];
   get<T extends DiamondStructure>(
     ctor: DiamondStructureCtor<T>,
