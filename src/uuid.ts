@@ -5,13 +5,6 @@
 
 // copy and modified from https://github.com/microsoft/vscode/blob/1115b3104f/src/vs/base/common/uuid.ts
 
-const _UUIDPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export function isUUID(value: string): boolean {
-  return _UUIDPattern.test(value);
-}
-
 // prep-work
 const _data = new Uint8Array(16);
 const _hex: string[] = [];
@@ -26,6 +19,7 @@ declare const crypto:
   | undefined
   | { getRandomValues(data: Uint8Array): Uint8Array };
 
+/* istanbul ignore next */
 if (
   typeof crypto === "object" &&
   typeof crypto.getRandomValues === "function"
