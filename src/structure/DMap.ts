@@ -1,6 +1,5 @@
 import {
   DiamondStructure,
-  DiamondStructureCtor,
   update,
   Operation,
   IDiamondDocContext,
@@ -12,7 +11,7 @@ interface DMapSetOperation extends Operation {
   value: string;
 }
 
-class _DMap implements DiamondStructure {
+class DMap implements DiamondStructure {
   static structureCtorId: string = "DMap";
   private data: Map<string, string>;
   constructor(
@@ -37,7 +36,7 @@ class _DMap implements DiamondStructure {
       key: key,
       value: value,
       type: "set",
-      structureCtorId: _DMap.structureCtorId,
+      structureCtorId: DMap.structureCtorId,
       structureName: this.structureName,
     };
     this.context.appendOperation(op);
@@ -48,7 +47,5 @@ class _DMap implements DiamondStructure {
     return this.data.get(key);
   }
 }
-
-const DMap: DiamondStructureCtor<_DMap> = _DMap;
 
 export { DMap };
