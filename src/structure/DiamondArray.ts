@@ -12,7 +12,12 @@ interface DiamondArrayAddRight extends Operation {
   value: string;
 }
 
-export type DiamondArrayOperation = DiamondArrayAddRight;
+interface DiamondArrayRemove extends Operation {
+  type: "remove";
+  id: Clock;
+}
+
+export type DiamondArrayOperation = DiamondArrayAddRight | DiamondArrayRemove;
 
 interface LinkNode {
   left: Clock | null;
@@ -57,6 +62,9 @@ export class DiamondArray implements DiamondStructure {
             nodeMap.get(originRight.toString())!.left = insertNode.id;
           }
           break;
+        }
+        case "remove": {
+          nodeMap.get(op.id.toString())!.delete = true;
         }
       }
     }
