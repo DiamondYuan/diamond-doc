@@ -14,6 +14,14 @@ interface DiamondArrayAddRight extends Operation {
 
 export type DiamondArrayOperation = DiamondArrayAddRight;
 
+interface LinkNode {
+  left: Clock | null;
+  right: Clock | null;
+  id: Clock | null;
+  delete: boolean;
+  value: string;
+}
+
 export class DiamondArray implements DiamondStructure {
   static structureCtorId: string = "DiamondArray";
   private data: { id: Clock; value: string }[] = [];
@@ -23,11 +31,62 @@ export class DiamondArray implements DiamondStructure {
   ) {}
 
   [update](operations: DiamondArrayOperation[]) {
+    const nodeMap = new Map<string | null, LinkNode>();
+    nodeMap.set(null, {
+      left: null,
+      right: null,
+      id: null,
+      delete: true,
+      value: "",
+    });
+    for (const op of operations) {
+      switch (op.type) {
+        case "addRight": {
+          const leftNode = nodeMap.get(op.left ? op.left.toString() : null)!;
+          const originRight = leftNode.right;
+          leftNode.right = op.id;
+          const insertNode: LinkNode = {
+            left: leftNode.id,
+            id: op.id,
+            delete: false,
+            right: originRight,
+            value: op.value,
+          };
+          nodeMap.set(op.id.toString(), insertNode);
+          if (originRight) {
+            nodeMap.get(originRight.toString())!.left = insertNode.id;
+          }
+          break;
+        }
+      }
+    }
+    const data: { id: Clock; value: string }[] = [];
+    let flag = null;
+
+    while (true) {
+      const node = nodeMap.get(flag ? flag.toString() : flag);
+      if (!node?.delete && node?.id) {
+        data.push({
+          id: node.id,
+          value: node.value,
+        });
+      }
+      if (!node?.right) {
+        break;
+      } else {
+        flag = node.right;
+      }
+    }
+    this.data = data;
     return this;
   }
 
   push(value: string): void {
-    this.makeAddRightOperation(this.data.length - 1, value);
+    if (this.data.length === 0) {
+      this.makeAddRightOperation(null, value);
+    } else {
+      this.makeAddRightOperation(this.data.length - 1, value);
+    }
   }
 
   insert(leftIndex: number, value: string): void {
@@ -59,7 +118,11 @@ export class DiamondArray implements DiamondStructure {
     if (index === null) {
       this.data.unshift(data);
     } else {
-      this.data.splice(index, 0, data);
+      this.data.splice(index + 1, 0, data);
     }
+  }
+
+  toJS() {
+    return this.data.map((p) => p.value);
   }
 }
