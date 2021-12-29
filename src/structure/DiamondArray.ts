@@ -14,7 +14,7 @@ interface DiamondArrayAddRight extends Operation {
 
 interface DiamondArrayRemove extends Operation {
   type: "remove";
-  id: Clock;
+  removeId: Clock;
 }
 
 export type DiamondArrayOperation = DiamondArrayAddRight | DiamondArrayRemove;
@@ -64,7 +64,7 @@ export class DiamondArray implements DiamondStructure {
           break;
         }
         case "remove": {
-          nodeMap.get(op.id.toString())!.delete = true;
+          nodeMap.get(op.removeId.toString())!.delete = true;
         }
       }
     }
@@ -95,6 +95,20 @@ export class DiamondArray implements DiamondStructure {
     } else {
       this.makeAddRightOperation(this.data.length - 1, value);
     }
+  }
+
+  remove(index: number): void {
+    const id = this.context.tick();
+    const removedItem = this.data[index].id;
+    const op: DiamondArrayRemove = {
+      id,
+      structureCtorId: DiamondArray.structureCtorId,
+      structureName: this.structureName,
+      type: "remove",
+      removeId: removedItem,
+    };
+    this.context.appendOperation(op);
+    this.data.splice(index, 1);
   }
 
   insert(leftIndex: number, value: string): void {

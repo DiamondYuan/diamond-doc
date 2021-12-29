@@ -1,7 +1,7 @@
 import { DiamondDoc } from "../src/index";
 import { DiamondArray } from "../src/structure/DiamondArray";
 
-it("test map", () => {
+it("test DiamondArray", () => {
   const remote = new DiamondDoc([], [DiamondArray]);
   const remoteArray = remote.get(DiamondArray, "todo");
 
@@ -17,9 +17,16 @@ it("test map", () => {
 
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
 
-  const n = 60000;
+  localArray.remove(0);
+  remoteArray.insert(0, "local-new");
+
+  local.merge(remote);
+  remote.merge(local);
+  expect(localArray.toJS()).toEqual(remoteArray.toJS());
+
+  const n = 6000;
   console.time(`insert ${n}`);
-  for (let i = 0; i < 60000; i++) {
+  for (let i = 0; i < n; i++) {
     const index = Math.floor(Math.random() * i);
     localArray.insert(index, `${i}`);
   }
