@@ -11,7 +11,8 @@ interface DMapSetOperation extends Operation {
   value: string;
 }
 
-class DMap implements DiamondStructure {
+export type DMapOperation = DMapSetOperation;
+export class DMap implements DiamondStructure {
   static structureCtorId: string = "DMap";
   private data: Map<string, string>;
   constructor(
@@ -21,7 +22,7 @@ class DMap implements DiamondStructure {
     this.data = new Map<string, string>();
   }
 
-  [update](operations: DMapSetOperation[]) {
+  [update](operations: DMapOperation[]) {
     const data = new Map<string, string>();
     for (const op of operations) {
       data.set(op.key, op.value);
@@ -47,5 +48,3 @@ class DMap implements DiamondStructure {
     return this.data.get(key);
   }
 }
-
-export { DMap };
