@@ -33,3 +33,24 @@ it("test map", () => {
   const v = local.get(DiamondMap);
   expect(v.structureName.startsWith("0000000003")).toBeTruthy();
 });
+
+it("value", () => {
+  const local = new DiamondDoc([], [DiamondMap]);
+  const localMap = local.get(DiamondMap, "properties");
+  const testMap = local.get(DiamondMap, "test");
+  testMap.set("test-key", "test-value");
+  const testData = [null, 1, "2", 3.3, true, false, testMap];
+  testData.forEach((value, index) => {
+    localMap.set(`${index}`, value);
+  });
+
+  const remote = new DiamondDoc([], [DiamondMap]);
+  remote.merge(local);
+  const remoteMap = remote.get(DiamondMap, "properties");
+  const remoteTestMap = remote.get(DiamondMap, "test");
+  const expectData = testData.slice(0, -1).concat(remoteTestMap);
+  for (let i = 0; i < testData.length; i++) {
+    expect(expectData[i] === remoteMap.get(`${i}`)).toBeTruthy();
+  }
+  expect(remoteTestMap.get("test-key")).toEqual("test-value");
+});

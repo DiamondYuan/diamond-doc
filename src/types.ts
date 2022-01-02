@@ -8,7 +8,8 @@ export interface Operation {
 export interface IDiamondDocContext {
   tick: () => Clock;
   appendOperation(operation: Operation): void;
-  get(structureCtorId: string, structureName: string): DiamondStructure;
+  getValueDescription(value: DiamondDocValueType): ValueDescription;
+  getRawValue(value: ValueDescription): DiamondDocValueType;
 }
 
 export const update: unique symbol = Symbol("update");
@@ -42,3 +43,40 @@ export interface DiamondStructure {
   [update](operations: Operation[]): this;
   toJS(): unknown;
 }
+
+export type DiamondDocValueType =
+  | string
+  | number
+  | boolean
+  | null
+  | DiamondStructure;
+
+export const enum DiamondDocDataType {
+  "string" = 0,
+  "int" = 1,
+  "float64" = 2,
+  "boolean" = 3,
+  "null" = 4,
+  "diamond" = 5,
+}
+
+export type ValueDescription =
+  | {
+      type:
+        | DiamondDocDataType.string
+        | DiamondDocDataType.int
+        | DiamondDocDataType.float64;
+      value: string;
+    }
+  | {
+      type: DiamondDocDataType.boolean;
+      value: boolean;
+    }
+  | {
+      type: DiamondDocDataType.null;
+    }
+  | {
+      type: DiamondDocDataType.diamond;
+      structureName: string;
+      structureCtorId: string;
+    };

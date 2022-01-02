@@ -8,9 +8,11 @@ import {
   IDiamondDocContext,
   update,
   IDiamondDocVersion,
+  ValueDescription,
 } from "./types";
 import { mergeAndSortOperations } from "./utils/merge";
 import { getOrCreateFromMap } from "./utils/get-or-create";
+import { getValueDescription, getValue } from "./utils/value-description";
 
 export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
@@ -61,6 +63,21 @@ export class DiamondDoc implements IDiamondDoc {
     );
   }
 
+  private getStructure<T extends DiamondStructure>(
+    structureCtorId: string,
+    structureName: string
+  ): T {
+    return getOrCreateFromMap<T>(
+      this.structureMap,
+      structureCtorId,
+      structureName,
+      () => {
+        const Ctor = this.ctorMap.get(structureCtorId)!;
+        return new Ctor(structureName, this.ctx);
+      }
+    );
+  }
+
   merge(other: IDiamondDoc) {
     const _operations = mergeAndSortOperations(
       this._operations,
@@ -101,12 +118,19 @@ export class DiamondDoc implements IDiamondDoc {
     }
   }
 
-  private createContext() {
+  private createContext(): IDiamondDocContext {
+    const that = this;
     return {
       tick: () => this._clock.tick(),
       appendOperation: (operation: Operation) => {
         this._operations.push(operation);
       },
+      getRawValue: (v: ValueDescription) => {
+        return getValue(v, (structureCtorId: string, structureName: string) => {
+          return that.getStructure(structureCtorId, structureName);
+        });
+      },
+      getValueDescription,
     };
   }
 }
