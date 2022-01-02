@@ -3,7 +3,7 @@ import {
   update,
   Operation,
   IDiamondDocContext,
-} from "./../types";
+} from "../types";
 
 interface DMapSetOperation extends Operation {
   type: "set";
@@ -11,9 +11,9 @@ interface DMapSetOperation extends Operation {
   value: string;
 }
 
-export type DMapOperation = DMapSetOperation;
-export class DMap implements DiamondStructure {
-  static structureCtorId: string = "DMap";
+export type DiamondMapOperation = DMapSetOperation;
+export class DiamondMap implements DiamondStructure {
+  static structureCtorId: string = "DiamondMap";
   private data: Map<string, string>;
   constructor(
     public structureName: string,
@@ -22,7 +22,7 @@ export class DMap implements DiamondStructure {
     this.data = new Map<string, string>();
   }
 
-  [update](operations: DMapOperation[]) {
+  [update](operations: DiamondMapOperation[]) {
     const data = new Map<string, string>();
     for (const op of operations) {
       data.set(op.key, op.value);
@@ -37,7 +37,7 @@ export class DMap implements DiamondStructure {
       key: key,
       value: value,
       type: "set",
-      structureCtorId: DMap.structureCtorId,
+      structureCtorId: DiamondMap.structureCtorId,
       structureName: this.structureName,
     };
     this.context.appendOperation(op);
