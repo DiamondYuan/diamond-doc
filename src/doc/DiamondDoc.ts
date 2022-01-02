@@ -1,5 +1,5 @@
-import { Clock } from "./clock";
-import { generateUuid } from "./uuid";
+import { Clock } from "../clock";
+import { generateUuid } from "../uuid";
 import {
   IDiamondDoc,
   Operation,
@@ -9,10 +9,10 @@ import {
   update,
   IDiamondDocVersion,
   ValueDescription,
-} from "./types";
-import { mergeAndSortOperations } from "./utils/merge";
-import { getOrCreateFromMap } from "./utils/get-or-create";
-import { getValueDescription, getValue } from "./utils/value-description";
+} from "../types";
+import { mergeAndSortOperations } from "../utils/merge";
+import { getOrCreateFromMap } from "../utils/get-or-create";
+import { getValueDescription, getValue } from "../utils/value-description";
 
 export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
