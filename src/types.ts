@@ -8,28 +8,11 @@ export interface Operation {
 export interface IDiamondDocContext {
   tick: () => Clock;
   appendOperation(operation: Operation): void;
-}
-
-export interface DiamondStructureCtor<T extends DiamondStructure> {
-  /**
-   * Each type has a different id
-   */
-  readonly structureCtorId: string;
-  new (structureName: string, context: IDiamondDocContext): T;
+  get(structureCtorId: string, structureName: string): DiamondStructure;
 }
 
 export const update: unique symbol = Symbol("update");
-
-export interface DiamondStructure {
-  /**
-   * Each type has a different id
-   */
-  readonly structureCtorId: string;
-  readonly structureName: string;
-  [update](operations: Operation[]): this;
-  toJS(): unknown;
-}
-
+export const doc: unique symbol = Symbol("doc");
 export interface IDiamondDocVersion {
   [actorId: string]: number;
 }
@@ -41,4 +24,21 @@ export interface IDiamondDoc {
     structureName?: string
   ): T;
   merge(other: IDiamondDoc): this;
+}
+
+export interface DiamondStructureCtor<T extends DiamondStructure> {
+  /**
+   * Each type has a different id
+   */
+  readonly structureCtorId: string;
+  new (structureName: string, context: IDiamondDocContext): T;
+}
+export interface DiamondStructure {
+  /**
+   * Each type has a different id
+   */
+  readonly structureCtorId: string;
+  readonly structureName: string;
+  [update](operations: Operation[]): this;
+  toJS(): unknown;
 }
