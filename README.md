@@ -2,7 +2,7 @@
 
 > This code is currently a work in progress. Do not use it in production.
 
-DiamondDoc is an State-based CRDT Types (CvCRDT).
+DiamondDoc is an State-based CRDT Types (CvCRDT). Zero dependent.
 
 ## Why not
 
