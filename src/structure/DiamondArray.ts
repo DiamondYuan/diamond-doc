@@ -95,7 +95,7 @@ export class DiamondArray implements DiamondStructure {
     return this;
   }
 
-  push(value: string): void {
+  push(value: DiamondDocValueType): void {
     if (this.data.length === 0) {
       this.makeAddRightOperation(null, value);
     } else {
@@ -117,10 +117,10 @@ export class DiamondArray implements DiamondStructure {
     this.data.splice(index, 1);
   }
 
-  insert(leftIndex: number, value: string): void {
+  insert(leftIndex: number, value: DiamondDocValueType): void {
     this.makeAddRightOperation(leftIndex, value);
   }
-  unshift(value: string): void {
+  unshift(value: DiamondDocValueType): void {
     this.makeAddRightOperation(null, value);
   }
 

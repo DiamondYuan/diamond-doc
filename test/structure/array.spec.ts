@@ -1,4 +1,4 @@
-import { DiamondDoc, DiamondArray } from "../../src";
+import { DiamondDoc, DiamondArray, DiamondMap } from "../../src";
 
 it("test DiamondArray", () => {
   const remote = new DiamondDoc([], [DiamondArray]);
@@ -34,4 +34,21 @@ it("test DiamondArray", () => {
   expect(local.operations).toEqual(remote.operations);
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
   expect(localArray.toJS().length).toEqual(remoteArray.toJS().length);
+});
+
+it("map and array", () => {
+  const remote = new DiamondDoc([], [DiamondArray, DiamondMap]);
+  const remoteArray = remote.get(DiamondArray, "todo");
+
+  const local = new DiamondDoc([], [DiamondArray, DiamondMap]);
+  const localArray = local.get(DiamondArray, "todo");
+
+  const task1 = local.get(DiamondMap);
+  task1.set("task", "task 01");
+  localArray.push(task1);
+
+  remote.merge(local);
+
+  const remoteTaskOne: DiamondMap = remoteArray.toJS()[0] as DiamondMap;
+  expect(remoteTaskOne.get("task")).toEqual("task 01");
 });
