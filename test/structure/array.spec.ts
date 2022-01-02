@@ -1,5 +1,4 @@
-import { DiamondDoc } from "../../src/index";
-import { DiamondArray } from "../../src/structure/DiamondArray";
+import { DiamondDoc, DiamondArray } from "../../src";
 
 it("test DiamondArray", () => {
   const remote = new DiamondDoc([], [DiamondArray]);

@@ -5,7 +5,7 @@ import {
   IDiamondDocContext,
 } from "../types";
 
-interface DMapSetOperation extends Operation {
+export interface DMapSetOperation extends Operation {
   type: "set";
   key: string;
   value: string;

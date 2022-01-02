@@ -6,13 +6,13 @@ import {
   IDiamondDocContext,
 } from "./../types";
 
-interface DiamondArrayAddRight extends Operation {
+export interface DiamondArrayAddRight extends Operation {
   type: "addRight";
   left: Clock | null;
   value: string;
 }
 
-interface DiamondArrayRemove extends Operation {
+export interface DiamondArrayRemove extends Operation {
   type: "remove";
   removeId: Clock;
 }
