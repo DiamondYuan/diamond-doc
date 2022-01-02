@@ -145,7 +145,7 @@ export class DiamondArray implements DiamondStructure {
     }
   }
 
-  toJS() {
+  toJS(): string[] {
     return this.data.map((p) => p.value);
   }
 }

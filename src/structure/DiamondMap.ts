@@ -48,4 +48,10 @@ export class DiamondMap implements DiamondStructure {
   get(key: string): string | undefined {
     return this.data.get(key);
   }
+
+  toJS(): Map<string, string> {
+    const js = new Map<string, string>();
+    this.data.forEach((key, value) => js.set(key, value));
+    return js;
+  }
 }

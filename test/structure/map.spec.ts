@@ -1,5 +1,5 @@
-import { DiamondDoc } from "../src/index";
-import { DiamondMap } from "../src/structure/DiamondMap";
+import { DiamondDoc } from "../../src/index";
+import { DiamondMap } from "../../src/structure/DiamondMap";
 
 function expectEquals(map: DiamondMap) {
   return {

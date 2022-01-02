@@ -28,6 +28,7 @@ export interface DiamondStructure {
   readonly structureCtorId: string;
   readonly structureName: string;
   [update](operations: Operation[]): this;
+  toJS(): unknown;
 }
 
 export interface IDiamondDocVersion {
