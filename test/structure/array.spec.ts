@@ -14,6 +14,8 @@ it("test DiamondArray", () => {
   local.merge(remote);
   remote.merge(local);
 
+  expect(local.version).toEqual(remote.version);
+
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
 
   localArray.remove(0);
@@ -24,16 +26,11 @@ it("test DiamondArray", () => {
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
 
   const n = 6000;
-  console.time(`insert ${n}`);
   for (let i = 0; i < n; i++) {
     const index = Math.floor(Math.random() * i);
     localArray.insert(index, `${i}`);
   }
-  console.timeEnd(`insert ${n}`);
-  console.time(`merge ${n}`);
   remote.merge(local);
-  console.timeEnd(`merge ${n}`);
-
   expect(local.operations).toEqual(remote.operations);
   expect(localArray.toJS()).toEqual(remoteArray.toJS());
   expect(localArray.toJS().length).toEqual(remoteArray.toJS().length);
