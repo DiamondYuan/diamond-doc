@@ -39,18 +39,21 @@ it("value", () => {
   const localMap = local.get(DiamondMap, "properties");
   const testMap = local.get(DiamondMap, "test");
   testMap.set("test-key", "test-value");
-  const testData = [null, 1, "2", 3.3, true, false, testMap];
+  const testData = [null, 1, "2", 3.3, true, false];
   testData.forEach((value, index) => {
     localMap.set(`${index}`, value);
   });
+
+  localMap.set("map", testMap);
 
   const remote = new DiamondDoc([], [DiamondMap]);
   remote.merge(local);
   const remoteMap = remote.get(DiamondMap, "properties");
   const remoteTestMap = remote.get(DiamondMap, "test");
-  const expectData = testData.slice(0, -1).concat(remoteTestMap);
   for (let i = 0; i < testData.length; i++) {
-    expect(expectData[i] === remoteMap.get(`${i}`)).toBeTruthy();
+    expect(testData[i] === remoteMap.get(`${i}`)).toBeTruthy();
   }
+
+  expect(remoteTestMap === remoteMap.toJS().get("map")).toBeTruthy();
   expect(remoteTestMap.get("test-key")).toEqual("test-value");
 });
