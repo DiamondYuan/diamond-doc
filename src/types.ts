@@ -20,7 +20,6 @@ export interface DiamondStructureCtor<T extends DiamondStructure> {
 
 export const update: unique symbol = Symbol("update");
 
-export interface DiamondStructureUpdateOptions {}
 export interface DiamondStructure {
   /**
    * Each type has a different id
