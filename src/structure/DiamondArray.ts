@@ -1,5 +1,8 @@
 import { Clock } from "./../clock";
 import {
+  DiamondDocDataType,
+  DiamondDocValueType,
+  ValueDescription,
   DiamondStructure,
   update,
   Operation,
@@ -9,7 +12,7 @@ import {
 export interface DiamondArrayAddRight extends Operation {
   type: "addRight";
   left: Clock | null;
-  value: string;
+  value: ValueDescription;
 }
 
 export interface DiamondArrayRemove extends Operation {
@@ -24,13 +27,13 @@ interface LinkNode {
   right: Clock | null;
   id: Clock | null;
   delete: boolean;
-  value: string;
+  value: ValueDescription;
 }
 
 export class DiamondArray implements DiamondStructure {
   static structureCtorId: string = "DiamondArray";
   public readonly structureCtorId = "DiamondArray";
-  private data: { id: Clock; value: string }[] = [];
+  private data: { id: Clock; value: ValueDescription }[] = [];
   constructor(
     public structureName: string,
     private context: IDiamondDocContext
@@ -43,7 +46,9 @@ export class DiamondArray implements DiamondStructure {
       right: null,
       id: null,
       delete: true,
-      value: "",
+      value: {
+        type: DiamondDocDataType.null,
+      },
     });
     for (const op of operations) {
       switch (op.type) {
@@ -69,7 +74,7 @@ export class DiamondArray implements DiamondStructure {
         }
       }
     }
-    const data: { id: Clock; value: string }[] = [];
+    const data: { id: Clock; value: ValueDescription }[] = [];
     let flag = null;
 
     while (true) {
@@ -119,7 +124,10 @@ export class DiamondArray implements DiamondStructure {
     this.makeAddRightOperation(null, value);
   }
 
-  private makeAddRightOperation(index: null | number, value: string): void {
+  private makeAddRightOperation(
+    index: null | number,
+    value: DiamondDocValueType
+  ): void {
     let left: Clock | null = null;
     if (index !== null) {
       left = this.data[index].id;
@@ -130,13 +138,13 @@ export class DiamondArray implements DiamondStructure {
       structureCtorId: DiamondArray.structureCtorId,
       structureName: this.structureName,
       type: "addRight",
-      value: value,
+      value: this.context.getValueDescription(value),
       left,
     };
     this.context.appendOperation(op);
     const data = {
       id,
-      value,
+      value: this.context.getValueDescription(value),
     };
     if (index === null) {
       this.data.unshift(data);
@@ -145,7 +153,7 @@ export class DiamondArray implements DiamondStructure {
     }
   }
 
-  toJS(): string[] {
-    return this.data.map((p) => p.value);
+  toJS(): DiamondDocValueType[] {
+    return this.data.map((p) => this.context.getRawValue(p.value));
   }
 }
