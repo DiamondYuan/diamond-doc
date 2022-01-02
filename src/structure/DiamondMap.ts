@@ -14,6 +14,7 @@ interface DMapSetOperation extends Operation {
 export type DiamondMapOperation = DMapSetOperation;
 export class DiamondMap implements DiamondStructure {
   static structureCtorId: string = "DiamondMap";
+  public readonly structureCtorId = "DiamondMap";
   private data: Map<string, string>;
   constructor(
     public structureName: string,

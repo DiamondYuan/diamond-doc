@@ -29,6 +29,7 @@ interface LinkNode {
 
 export class DiamondArray implements DiamondStructure {
   static structureCtorId: string = "DiamondArray";
+  public readonly structureCtorId = "DiamondArray";
   private data: { id: Clock; value: string }[] = [];
   constructor(
     public structureName: string,

@@ -22,6 +22,10 @@ export const update: unique symbol = Symbol("update");
 
 export interface DiamondStructureUpdateOptions {}
 export interface DiamondStructure {
+  /**
+   * Each type has a different id
+   */
+  readonly structureCtorId: string;
   readonly structureName: string;
   [update](operations: Operation[]): this;
 }
