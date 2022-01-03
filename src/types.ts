@@ -56,7 +56,7 @@ export const enum DiamondDocDataType {
   "float64" = 2,
   "boolean" = 3,
   "null" = 4,
-  "diamond" = 5,
+  "diamond" = 7,
 }
 
 export type ValueDescription =
