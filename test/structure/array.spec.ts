@@ -52,3 +52,17 @@ it("map and array", () => {
   const remoteTaskOne: DiamondMap = remoteArray.toJS()[0] as DiamondMap;
   expect(remoteTaskOne.get("task")).toEqual("task 01");
 });
+
+it("", () => {
+  const local = new DiamondDoc([], [DiamondArray]);
+  const testMap = local.get(DiamondArray, "list");
+  testMap.push("01");
+  testMap.push("02");
+
+  const newLocal = new DiamondDoc(
+    JSON.parse(JSON.stringify(local.operations)),
+    [DiamondArray]
+  );
+  newLocal.merge(local);
+  expect(newLocal.get(DiamondArray, "list").toJS()).toEqual(["01", "02"]);
+});

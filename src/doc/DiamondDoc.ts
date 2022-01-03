@@ -93,9 +93,9 @@ export class DiamondDoc implements IDiamondDoc {
     // Map<structureCtorId,<structureCtorId,DiamondStructure>>
     const operationsMap: Map<string, Map<string, Operation[]>> = new Map();
     operations.forEach((o) => {
-      let clock = this.vendorClock.get(o.id.actorId) ?? o.id.counter;
-      clock = Math.max(clock, o.id.counter);
-      this.vendorClock.set(o.id.actorId, clock);
+      let clock = this.vendorClock.get(o.id[0]) ?? o.id[1];
+      clock = Math.max(clock, o.id[1]);
+      this.vendorClock.set(o.id[0], clock);
       getOrCreateFromMap<Operation[]>(
         operationsMap,
         o.structureCtorId,

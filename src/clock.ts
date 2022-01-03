@@ -7,18 +7,15 @@
 // copy and modified from https://github.com/codesandbox/crdt-tree/blob/83197aeee9d83f77d5e36bd1ca96dde22b7099ea/src/Clock.ts
 
 export enum Ordering {
-  Equal,
-  Greater,
-  Less,
+  Equal = 0,
+  Greater = 1,
+  Less = -1,
 }
 
-export interface IClock {
-  actorId: string;
-  counter: number;
-}
+export type EncodedClock = [string, number];
 
 /** Implements a Lamport Clock */
-export class Clock implements IClock {
+export class Clock {
   actorId: string;
   counter: number;
 
@@ -27,6 +24,16 @@ export class Clock implements IClock {
     this.counter = counter;
   }
 
+  static compare(a: EncodedClock, b: EncodedClock): Ordering {
+    return Clock.decode(a).compare(Clock.decode(b));
+  }
+
+  static encode(c: Clock): EncodedClock {
+    return [c.actorId, c.counter];
+  }
+  static decode(c: EncodedClock): Clock {
+    return new Clock(c[0], c[1]);
+  }
   /** Returns a new Clock with same actor but counter incremented by 1 */
   inc(): Clock {
     return new Clock(this.actorId, this.counter + 1);
@@ -39,8 +46,8 @@ export class Clock implements IClock {
   }
 
   /** Returns a new clock with the same actor but the counter is the larger of the two */
-  merge(clock: Clock): Clock {
-    return new Clock(this.actorId, Math.max(this.counter, clock.counter));
+  merge(clock: EncodedClock): Clock {
+    return new Clock(this.actorId, Math.max(this.counter, clock[1]));
   }
 
   /** Compare the ordering of the current Clock with another */
@@ -74,5 +81,9 @@ export class Clock implements IClock {
   toString(): string {
     const paddedCounter = String(this.counter).padStart(10, "0");
     return `${paddedCounter}:${this.actorId}`;
+  }
+
+  encode(): EncodedClock {
+    return [this.actorId, this.counter];
   }
 }

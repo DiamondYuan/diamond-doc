@@ -1,4 +1,4 @@
-import { Clock } from "./../clock";
+import { EncodedClock } from "./../clock";
 import {
   DiamondDocDataType,
   DiamondDocValueType,
@@ -11,21 +11,21 @@ import {
 
 export interface DiamondArrayAddRight extends Operation {
   type: "addRight";
-  left: Clock | null;
+  left: EncodedClock | null;
   value: ValueDescription;
 }
 
 export interface DiamondArrayRemove extends Operation {
   type: "remove";
-  removeId: Clock;
+  removeId: EncodedClock;
 }
 
 export type DiamondArrayOperation = DiamondArrayAddRight | DiamondArrayRemove;
 
 interface LinkNode {
-  left: Clock | null;
-  right: Clock | null;
-  id: Clock | null;
+  left: EncodedClock | null;
+  right: EncodedClock | null;
+  id: EncodedClock | null;
   delete: boolean;
   value: ValueDescription;
 }
@@ -33,7 +33,7 @@ interface LinkNode {
 export class DiamondArray implements DiamondStructure {
   static structureCtorId: string = "DiamondArray";
   public readonly structureCtorId = "DiamondArray";
-  private data: { id: Clock; value: ValueDescription }[] = [];
+  private data: { id: EncodedClock; value: ValueDescription }[] = [];
   constructor(
     public structureName: string,
     private context: IDiamondDocContext
@@ -74,7 +74,7 @@ export class DiamondArray implements DiamondStructure {
         }
       }
     }
-    const data: { id: Clock; value: ValueDescription }[] = [];
+    const data: { id: EncodedClock; value: ValueDescription }[] = [];
     let flag = null;
 
     while (true) {
@@ -107,7 +107,7 @@ export class DiamondArray implements DiamondStructure {
     const id = this.context.tick();
     const removedItem = this.data[index].id;
     const op: DiamondArrayRemove = {
-      id,
+      id: id.encode(),
       structureCtorId: DiamondArray.structureCtorId,
       structureName: this.structureName,
       type: "remove",
@@ -128,13 +128,13 @@ export class DiamondArray implements DiamondStructure {
     index: null | number,
     value: DiamondDocValueType
   ): void {
-    let left: Clock | null = null;
+    let left: EncodedClock | null = null;
     if (index !== null) {
       left = this.data[index].id;
     }
     const id = this.context.tick();
     const op: DiamondArrayAddRight = {
-      id,
+      id: id.encode(),
       structureCtorId: DiamondArray.structureCtorId,
       structureName: this.structureName,
       type: "addRight",
@@ -143,7 +143,7 @@ export class DiamondArray implements DiamondStructure {
     };
     this.context.appendOperation(op);
     const data = {
-      id,
+      id: id.encode(),
       value: this.context.getValueDescription(value),
     };
     if (index === null) {

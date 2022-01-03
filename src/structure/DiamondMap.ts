@@ -50,7 +50,7 @@ export class DiamondMap implements DiamondStructure {
   set(key: string, value: DiamondDocValueType) {
     const internalValue = this.context.getValueDescription(value);
     const op: DiamondMap_Set = {
-      id: this.context.tick(),
+      id: this.context.tick().encode(),
       key: key,
       value: internalValue,
       type: "set",
@@ -63,7 +63,7 @@ export class DiamondMap implements DiamondStructure {
 
   delete(key: string) {
     const op: DiamondMap_Del = {
-      id: this.context.tick(),
+      id: this.context.tick().encode(),
       type: "delete",
       key: key,
       structureCtorId: DiamondMap.structureCtorId,

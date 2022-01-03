@@ -1,10 +1,9 @@
-import { Clock } from "./clock";
+import { Clock, EncodedClock } from "./clock";
 export interface Operation {
-  id: Clock;
+  id: EncodedClock;
   structureName: string;
   structureCtorId: string;
 }
-
 export interface IDiamondDocContext {
   tick: () => Clock;
   appendOperation(operation: Operation): void;
