@@ -29,9 +29,24 @@ export class DiamondDoc implements IDiamondDoc {
   }
   constructor(
     _operations: Operation[],
-    ctors: DiamondStructureCtor<DiamondStructure>[]
+    ctors: DiamondStructureCtor<DiamondStructure>[],
+    options?: {
+      /**
+       * this comment is copy from https://github.com/automerge/automerge/blob/4068e96724756e0d32c11ef0680d26204f23e2e1/README.md
+       *
+       * Copyright (c) 2017-2021 Martin Kleppmann, Ink & Switch LLC, and the Automerge contributors
+       *
+       * The `actorId` is a string that uniquely identifies the current node; if you omit `actorId`, a
+       * random UUID is generated. If you pass in your own `actorId`, you must ensure that there can never
+       * be two different processes with the same actor ID. Even if you have two different processes
+       * running on the same machine, they must have distinct actor IDs.
+       *
+       * **Unless you know what you are doing, you should stick with the default**, and let `actorId` be auto-generated.
+       */
+      actorId?: string;
+    }
   ) {
-    this._clock = new Clock(generateUuid());
+    this._clock = new Clock(options?.actorId ?? generateUuid());
     this._operations = _operations;
     this.ctx = this.createContext();
     ctors.forEach((ctor) => {

@@ -84,6 +84,6 @@ export class Clock {
   }
 
   encode(): EncodedClock {
-    return [this.actorId, this.counter];
+    return Clock.encode(this);
   }
 }
