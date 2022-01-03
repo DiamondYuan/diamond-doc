@@ -2,10 +2,10 @@ import {
   ValueDescription,
   DiamondDocValueType,
   DiamondStructure,
-  update,
   Operation,
   IDiamondDocContext,
 } from "../types";
+import { UPDATE } from "../constants";
 
 export interface DiamondMap_Set extends Operation {
   type: "set";
@@ -30,7 +30,7 @@ export class DiamondMap implements DiamondStructure {
     this.data = new Map<string, ValueDescription>();
   }
 
-  [update](operations: DiamondMapOperation[]) {
+  [UPDATE](operations: DiamondMapOperation[]) {
     const data = new Map<string, ValueDescription>();
     for (const op of operations) {
       switch (op.type) {

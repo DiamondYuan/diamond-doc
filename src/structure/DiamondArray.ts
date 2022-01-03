@@ -4,10 +4,10 @@ import {
   DiamondDocValueType,
   ValueDescription,
   DiamondStructure,
-  update,
   Operation,
   IDiamondDocContext,
 } from "./../types";
+import { UPDATE } from "../constants";
 
 export interface DiamondArrayAddRight extends Operation {
   type: "addRight";
@@ -39,7 +39,7 @@ export class DiamondArray implements DiamondStructure {
     private context: IDiamondDocContext
   ) {}
 
-  [update](operations: DiamondArrayOperation[]) {
+  [UPDATE](operations: DiamondArrayOperation[]) {
     const nodeMap = new Map<string | null, LinkNode>();
     nodeMap.set(null, {
       left: null,

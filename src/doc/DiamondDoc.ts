@@ -7,10 +7,10 @@ import {
   DiamondStructure,
   DiamondStructureCtor,
   IDiamondDocContext,
-  update,
   IDiamondDocVersion,
   ValueDescription,
 } from "../types";
+import { UPDATE } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
 import { getOrCreateFromMap } from "../utils/get-or-create";
 import { getValueDescription, getValue } from "../utils/value-description";
@@ -123,7 +123,7 @@ export class DiamondDoc implements IDiamondDoc {
           this.ctorMap.get(structureCtorId)!,
           structureName
         );
-        structure[update](structureOperations);
+        structure[UPDATE](structureOperations);
       }
     }
   }

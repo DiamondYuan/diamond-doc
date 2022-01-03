@@ -1,4 +1,5 @@
 import { Clock, EncodedClock } from "./clock";
+import { UPDATE } from "./constants";
 export interface Operation {
   id: EncodedClock;
   structureName: string;
@@ -11,8 +12,6 @@ export interface IDiamondDocContext {
   getRawValue(value: ValueDescription): DiamondDocValueType;
 }
 
-export const update: unique symbol = Symbol("update");
-export const doc: unique symbol = Symbol("doc");
 export interface IDiamondDocVersion {
   [actorId: string]: number;
 }
@@ -39,7 +38,7 @@ export interface DiamondStructure {
    */
   readonly structureCtorId: string;
   readonly structureName: string;
-  [update](operations: Operation[]): this;
+  [UPDATE](operations: Operation[]): this;
   toJS(): unknown;
 }
 
