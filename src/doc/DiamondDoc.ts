@@ -1,6 +1,6 @@
 import { VendorClock } from "./../vendor-clock";
 import { Clock } from "../clock";
-import { generateUuid } from "../uuid";
+import { generateUuid } from "../base/uuid";
 import {
   IDiamondDoc,
   Operation,
