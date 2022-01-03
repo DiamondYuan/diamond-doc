@@ -29,3 +29,8 @@ it("test compare", () => {
   expect(b2 > a1).toBeTruthy();
   expect(b2.compare(a1)).toEqual(Ordering.Greater);
 });
+
+it("", () => {
+  const a = new Clock("a", 0);
+  expect(Clock.encode(a)).toEqual(["a", 0]);
+});

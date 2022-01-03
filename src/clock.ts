@@ -46,8 +46,8 @@ export class Clock {
   }
 
   /** Returns a new clock with the same actor but the counter is the larger of the two */
-  merge(clock: EncodedClock): Clock {
-    return new Clock(this.actorId, Math.max(this.counter, clock[1]));
+  merge(clock: Clock): Clock {
+    return new Clock(this.actorId, Math.max(this.counter, clock.counter));
   }
 
   /** Compare the ordering of the current Clock with another */

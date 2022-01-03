@@ -76,7 +76,6 @@ export class DiamondArray implements DiamondStructure {
     }
     const data: { id: EncodedClock; value: ValueDescription }[] = [];
     let flag = null;
-
     while (true) {
       const node = nodeMap.get(flag ? flag.toString() : flag);
       if (!node?.delete && node?.id) {

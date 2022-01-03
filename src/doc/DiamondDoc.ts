@@ -1,3 +1,4 @@
+import { VendorClock } from "./../vendor-clock";
 import { Clock } from "../clock";
 import { generateUuid } from "../uuid";
 import {
@@ -21,14 +22,10 @@ export class DiamondDoc implements IDiamondDoc {
   private ctorMap: Map<string, DiamondStructureCtor<DiamondStructure>> =
     new Map();
   private structureMap: Map<string, Map<string, DiamondStructure>> = new Map();
-  private vendorClock: Map<string, number> = new Map();
+  private vendorClock: VendorClock = new VendorClock();
 
   get version(): IDiamondDocVersion {
-    const version: IDiamondDocVersion = {};
-    for (const [actorId, counter] of this.vendorClock.entries()) {
-      version[actorId] = counter;
-    }
-    return version;
+    return this.vendorClock.version();
   }
   constructor(
     _operations: Operation[],
@@ -93,16 +90,14 @@ export class DiamondDoc implements IDiamondDoc {
     // Map<structureCtorId,<structureCtorId,DiamondStructure>>
     const operationsMap: Map<string, Map<string, Operation[]>> = new Map();
     operations.forEach((o) => {
-      let clock = this.vendorClock.get(o.id[0]) ?? o.id[1];
-      clock = Math.max(clock, o.id[1]);
-      this.vendorClock.set(o.id[0], clock);
+      this.vendorClock.merge(o.id);
       getOrCreateFromMap<Operation[]>(
         operationsMap,
         o.structureCtorId,
         o.structureName,
         () => []
       ).push(o);
-      this._clock = this._clock.merge(o.id);
+      this._clock = this._clock.merge(Clock.decode(o.id));
     });
     for (const [structureCtorId, structuresMap] of operationsMap.entries()) {
       for (const [
