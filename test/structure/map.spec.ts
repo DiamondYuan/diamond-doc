@@ -7,10 +7,10 @@ function expectEquals(map: DiamondMap) {
   };
 }
 it("test map", () => {
-  const remote = new DiamondDoc([], [DiamondMap]);
+  const remote = new DiamondDoc([], [DiamondMap], { actorId: "a" });
   const remoteMap = remote.get(DiamondMap, "properties");
 
-  const local = new DiamondDoc([], [DiamondMap]);
+  const local = new DiamondDoc([], [DiamondMap], { actorId: "b" });
   const localMap = local.get(DiamondMap, "properties");
 
   localMap.set("name", "Alice");
@@ -29,9 +29,8 @@ it("test map", () => {
 
   expect(local.operations).toEqual(remote.operations);
   expect(local.version).toEqual(remote.version);
-
   const v = local.get(DiamondMap);
-  expect(v.structureName.startsWith("0000000003")).toBeTruthy();
+  expect(v.structureName).toEqual("0000000003:b");
 });
 
 it("value", () => {
