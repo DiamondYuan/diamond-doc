@@ -6,7 +6,7 @@ export function getOperationsByVersion(
 ): Operation[] {
   return doc.operations.filter((op) => {
     const v = version[op.id[0]] ?? -1;
-    if (op.id[1] < v) {
+    if (op.id[1] <= v) {
       return true;
     }
     return false;

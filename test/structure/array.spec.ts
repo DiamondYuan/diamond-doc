@@ -1,5 +1,6 @@
 import { TestDoc } from "./../fixture/test-doc";
 import { DiamondDoc, DiamondArray, DiamondMap } from "../../src";
+import { getOperationsByVersion } from "../../src/utils/get-operations-by-version";
 
 it("test DiamondArray", () => {
   const remote = new DiamondDoc([], [DiamondArray]);
@@ -60,8 +61,14 @@ it("support stringify and parse", () => {
   testMap.push("01");
   testMap.push("02");
 
+  const snapshot = local.version;
+
   const newLocal = new TestDoc(JSON.parse(JSON.stringify(local.operations)));
   newLocal.getArray("list").push("03");
   local.merge(newLocal);
   expect(local.get(DiamondArray, "list").toJS()).toEqual(["01", "02", "03"]);
+
+  expect(
+    new TestDoc(getOperationsByVersion(local, snapshot)).getArray("list").toJS()
+  ).toEqual(["01", "02"]);
 });
