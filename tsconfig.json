@@ -5,7 +5,6 @@
     "baseUrl": ".",
     "rootDir": "./",
     "sourceMap": true,
-    "outDir": "./lib",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
