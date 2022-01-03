@@ -57,3 +57,21 @@ it("value", () => {
   expect(remoteTestMap === remoteMap.toJS().get("map")).toBeTruthy();
   expect(remoteTestMap.get("test-key")).toEqual("test-value");
 });
+
+it("test delete and add", () => {
+  const remote = new DiamondDoc([], [DiamondMap], { actorId: "a" });
+  const local = new DiamondDoc([], [DiamondMap], { actorId: "b" });
+
+  const map_local = local.get(DiamondMap, "map");
+  map_local.set("key", "local");
+  map_local.delete("key");
+
+  const map_remote = remote.get(DiamondMap, "map");
+  map_remote.set("key", "remote");
+
+  local.merge(remote);
+  remote.merge(local);
+
+  expect(map_remote.get("key")).toEqual(undefined);
+  expect(map_remote.get("key")).toEqual(undefined);
+});
