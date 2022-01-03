@@ -1,3 +1,4 @@
+import { TestDoc } from "./../fixture/test-doc";
 import { DiamondDoc, DiamondArray, DiamondMap } from "../../src";
 
 it("test DiamondArray", () => {
@@ -53,16 +54,14 @@ it("map and array", () => {
   expect(remoteTaskOne.get("task")).toEqual("task 01");
 });
 
-it("", () => {
-  const local = new DiamondDoc([], [DiamondArray]);
+it("support stringify and parse", () => {
+  const local = new TestDoc([]);
   const testMap = local.get(DiamondArray, "list");
   testMap.push("01");
   testMap.push("02");
 
-  const newLocal = new DiamondDoc(
-    JSON.parse(JSON.stringify(local.operations)),
-    [DiamondArray]
-  );
-  newLocal.merge(local);
-  expect(newLocal.get(DiamondArray, "list").toJS()).toEqual(["01", "02"]);
+  const newLocal = new TestDoc(JSON.parse(JSON.stringify(local.operations)));
+  newLocal.getArray("list").push("03");
+  local.merge(newLocal);
+  expect(local.get(DiamondArray, "list").toJS()).toEqual(["01", "02", "03"]);
 });
