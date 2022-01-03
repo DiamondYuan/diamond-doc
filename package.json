@@ -1,19 +1,27 @@
 {
   "name": "diamond-doc",
   "version": "0.0.1",
-  "main": "index.js",
   "repository": "git@github.com:DiamondYuan/diamond-doc.git",
   "author": "DiamondYuan <admin@diamondyuan.com>",
   "license": "MIT",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "rollup -c",
     "test": "jest",
     "cov": "jest  --collect-coverage"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "jest": "^27.4.5",
+    "rollup": "^2.62.0",
+    "rollup-plugin-typescript2": "^0.31.1",
     "ts-jest": "^27.1.2",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "rollup-plugin-babel": "^4.4.0"
   }
 }

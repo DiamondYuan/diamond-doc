@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "commonjs",
+    "declaration": true,
+    "target": "ES2015",
+    "module": "CommonJS",
     "baseUrl": ".",
-    "rootDir": "./",
+    "rootDir": "./src",
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,6 +12,5 @@
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts"
   ]
 }
