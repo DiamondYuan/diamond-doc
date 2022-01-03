@@ -7,12 +7,18 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README-zh.md",
+    "README.md"
+  ],
   "scripts": {
     "build": "rollup -c",
     "test": "jest",
     "cov": "jest  --collect-coverage"
   },
   "devDependencies": {
+    "rollup-plugin-babel": "^4.4.0",
     "@types/jest": "^27.0.3",
     "jest": "^27.4.5",
     "rollup": "^2.62.0",
@@ -20,8 +26,5 @@
     "ts-jest": "^27.1.2",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
-  },
-  "dependencies": {
-    "rollup-plugin-babel": "^4.4.0"
   }
 }
