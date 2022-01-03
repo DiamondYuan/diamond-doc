@@ -133,6 +133,7 @@ export class DiamondDoc implements IDiamondDoc {
     return {
       tick: () => this._clock.tick(),
       appendOperation: (operation: Operation) => {
+        this.vendorClock.merge(operation.id);
         this._operations.push(operation);
       },
       getRawValue: (v: ValueDescription) => {

@@ -69,8 +69,12 @@ it("test delete and add", () => {
   const map_remote = remote.get(DiamondMap, "map");
   map_remote.set("key", "remote");
 
+  expect(remote.version).toEqual({ a: 1 });
+
   local.merge(remote);
   remote.merge(local);
+
+  expect(remote.version).toEqual({ a: 1, b: 2 });
 
   expect(map_remote.get("key")).toEqual(undefined);
   expect(map_remote.get("key")).toEqual(undefined);
