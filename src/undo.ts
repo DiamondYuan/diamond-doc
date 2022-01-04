@@ -1,5 +1,8 @@
 import { Operation, DiamondStructure } from "./types";
 
+export interface EditStackCtor {
+  new (name: string, handler: (structure: DiamondStructure) => void): EditStack;
+}
 export interface EditStack {
   readonly name: string;
   pushStackElement(): void;
@@ -11,5 +14,15 @@ export interface EditStack {
 
   applyOperation(op: Operation): void;
   track(structure: DiamondStructure): void;
-  onTrack(handler: (structure: DiamondStructure) => void): void;
 }
+
+function te(ctor: EditStackCtor) {}
+
+export class EditStackService {
+  constructor(
+    public name: string,
+    handler: (structure: DiamondStructure) => void
+  ) {}
+}
+
+te(EditStackService);

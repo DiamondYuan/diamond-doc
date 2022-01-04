@@ -1,4 +1,4 @@
-import { EditStack } from "./../undo";
+import { EditStack, EditStackCtor } from "./../undo";
 import { VendorClock } from "./../vendor-clock";
 import { Clock } from "../clock";
 import { generateUuid } from "../base/uuid";
@@ -34,7 +34,8 @@ export class DiamondDoc implements IDiamondDoc {
   constructor(
     _operations: Operation[],
     ctors: DiamondStructureCtor<DiamondStructure>[],
-    options?: {
+    private options?: {
+      editStackCtor?: EditStackCtor;
       /**
        * this comment is copy from https://github.com/automerge/automerge/blob/4068e96724756e0d32c11ef0680d26204f23e2e1/README.md
        *
@@ -161,9 +162,8 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   createOperationManager(name: string): EditStack {
-    const editStack = { name: name } as any as EditStack;
-    this.editorStackMap.set(editStack.name, editStack);
-    editStack.onTrack((s) => {
+    const Ctor = this.options!.editStackCtor!;
+    const editStack = new Ctor(name, (s: DiamondStructure) => {
       getOrCreateFromMap(
         this.structureEditorStackMap,
         s.structureCtorId,
@@ -173,6 +173,7 @@ export class DiamondDoc implements IDiamondDoc {
         }
       );
     });
+    this.editorStackMap.set(editStack.name, editStack);
     return editStack;
   }
 }
