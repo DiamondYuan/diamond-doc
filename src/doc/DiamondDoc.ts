@@ -1,3 +1,4 @@
+import { EditStack } from "./../undo";
 import { VendorClock } from "./../vendor-clock";
 import { Clock } from "../clock";
 import { generateUuid } from "../base/uuid";
@@ -22,8 +23,11 @@ export class DiamondDoc implements IDiamondDoc {
   private ctorMap: Map<string, DiamondStructureCtor<DiamondStructure>> =
     new Map();
   private structureMap: Map<string, Map<string, DiamondStructure>> = new Map();
-  private vendorClock: VendorClock = new VendorClock();
+  private structureEditorStackMap: Map<string, Map<string, DiamondStructure>> =
+    new Map();
+  private editorStackMap: Map<string, EditStack> = new Map();
 
+  private vendorClock: VendorClock = new VendorClock();
   get version(): IDiamondDocVersion {
     return this.vendorClock.version();
   }
@@ -134,6 +138,17 @@ export class DiamondDoc implements IDiamondDoc {
       tick: () => this._clock.tick(),
       appendOperation: (operation: Operation) => {
         this.vendorClock.merge(operation.id);
+        const editStackName = getOrCreateFromMap(
+          this.structureEditorStackMap,
+          operation.structureCtorId,
+          operation.structureName,
+          () => {
+            return null;
+          }
+        ) as string;
+        if (editStackName) {
+          this.editorStackMap.get(editStackName)?.applyOperation(operation);
+        }
         this._operations.push(operation);
       },
       getRawValue: (v: ValueDescription) => {
@@ -143,5 +158,21 @@ export class DiamondDoc implements IDiamondDoc {
       },
       getValueDescription,
     };
+  }
+
+  createOperationManager(name: string): EditStack {
+    const editStack = { name: name } as any as EditStack;
+    this.editorStackMap.set(editStack.name, editStack);
+    editStack.onTrack((s) => {
+      getOrCreateFromMap(
+        this.structureEditorStackMap,
+        s.structureCtorId,
+        s.structureName,
+        () => {
+          return name;
+        }
+      );
+    });
+    return editStack;
   }
 }

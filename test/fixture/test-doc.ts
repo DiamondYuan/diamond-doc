@@ -1,3 +1,4 @@
+import { EditStack } from "./../../src/undo";
 import { DiamondArray } from "./../../src/structure/DiamondArray";
 import { Operation } from "./../../src/types";
 import { DiamondDoc } from "./../../src/doc/DiamondDoc";
