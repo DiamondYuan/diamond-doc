@@ -111,9 +111,12 @@ export class Client {
   }
 
   private saveDoc() {
+    //保存
     const saveVersion = this.doSave();
     const interval = setInterval(() => {
+      //取回来
       const currentStorage = this.getLocalStorageDoc();
+      //看一下是否保存成功
       const saved = Object.keys(saveVersion).every((e) => {
         currentStorage.version[e] >= saveVersion[e];
       });
