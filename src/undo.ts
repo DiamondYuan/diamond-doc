@@ -7,7 +7,7 @@ export interface EditStack {
   readonly name: string;
   pushStackElement(): void;
 
-  undo(): boolean;
+  undo(): void;
   canUndo(): boolean;
   redo(): void;
   canRedo(): boolean;
@@ -16,13 +16,31 @@ export interface EditStack {
   track(structure: DiamondStructure): void;
 }
 
-function te(ctor: EditStackCtor) {}
+function testEditStackCtor(ctor: EditStackCtor) {}
 
 export class EditStackService {
   constructor(
     public name: string,
     handler: (structure: DiamondStructure) => void
   ) {}
+
+  pushStackElement() {}
+
+  redo() {}
+
+  canUndo() {
+    return false;
+  }
+
+  canRedo() {
+    return false;
+  }
+
+  undo() {}
+
+  track(structure: DiamondStructure): void {}
+
+  applyOperation(op: Operation): void {}
 }
 
-te(EditStackService);
+testEditStackCtor(EditStackService);
