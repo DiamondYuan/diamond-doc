@@ -1,6 +1,6 @@
 import { EditStack, EditStackCtor } from "./../undo";
 import { VendorClock } from "./../vendor-clock";
-import { Clock } from "../clock";
+import { Clock, EncodedClock } from "../clock";
 import { generateUuid } from "../base/uuid";
 import {
   IDiamondDoc,
@@ -10,11 +10,28 @@ import {
   IDiamondDocContext,
   IDiamondDocVersion,
   ValueDescription,
+  DiamondDocOptions,
+  StructureOperation,
+  DocumentOperation
 } from "../types";
 import { UPDATE } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
 import { getOrCreateFromMap } from "../utils/get-or-create";
 import { getValueDescription, getValue } from "../utils/value-description";
+import { isDiamondStructure, isDocumentOperation, isStructureOperation } from "..//utils/is-diamond-structure";
+
+export interface UndoOperation extends DocumentOperation {
+  type: 'undo'
+  ids: EncodedClock[]
+
+}
+
+export interface RedoOperation extends DocumentOperation {
+  type: 'redo'
+  ids: EncodedClock[]
+}
+
+type DiamondDocOperation = UndoOperation | RedoOperation
 
 export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
@@ -34,22 +51,7 @@ export class DiamondDoc implements IDiamondDoc {
   constructor(
     _operations: Operation[],
     ctors: DiamondStructureCtor<DiamondStructure>[],
-    private options?: {
-      editStackCtor?: EditStackCtor;
-      /**
-       * this comment is copy from https://github.com/automerge/automerge/blob/4068e96724756e0d32c11ef0680d26204f23e2e1/README.md
-       *
-       * Copyright (c) 2017-2021 Martin Kleppmann, Ink & Switch LLC, and the Automerge contributors
-       *
-       * The `actorId` is a string that uniquely identifies the current node; if you omit `actorId`, a
-       * random UUID is generated. If you pass in your own `actorId`, you must ensure that there can never
-       * be two different processes with the same actor ID. Even if you have two different processes
-       * running on the same machine, they must have distinct actor IDs.
-       *
-       * **Unless you know what you are doing, you should stick with the default**, and let `actorId` be auto-generated.
-       */
-      actorId?: string;
-    }
+    options?: DiamondDocOptions
   ) {
     this._clock = new Clock(options?.actorId ?? generateUuid());
     this._operations = _operations;
@@ -80,6 +82,58 @@ export class DiamondDoc implements IDiamondDoc {
     );
   }
 
+  merge(other: IDiamondDoc) {
+    const _operations = mergeAndSortOperations(
+      this._operations,
+      other.operations
+    );
+    this._operations = _operations;
+    this.build();
+    return this;
+  }
+
+  createOperationManager(Ctor: EditStackCtor, name?: string): EditStack {
+    const managerName = name ?? generateUuid()
+    const handler = (s: DiamondStructure) => {
+      getOrCreateFromMap(
+        this.structureEditorStackMap,
+        s.structureCtorId,
+        s.structureName,
+        () => {
+          return managerName;
+        }
+      );
+    }
+    const editStack = new Ctor({
+      name: managerName,
+      handlerTrack: handler,
+      handleRedo: this.handleRedo.bind(this),
+      handleUndo: this.handleUndo.bind(this)
+    });
+    this.editorStackMap.set(editStack.name, editStack);
+    return editStack;
+  }
+
+  private handleUndo(ops: StructureOperation[]) {
+    const undo: UndoOperation = {
+      id: this._clock.tick().encode(),
+      type: 'undo',
+      ids: ops.map(o => o.id)
+    }
+    this.operations.push(undo)
+    this.build()
+  }
+
+  private handleRedo(ops: StructureOperation[]) {
+    const redo: RedoOperation = {
+      id: this._clock.tick().encode(),
+      type: 'redo',
+      ids: ops.map(o => o.id)
+    }
+    this.operations.push(redo)
+    this.build()
+  }
+
   private getStructure<T extends DiamondStructure>(
     structureCtorId: string,
     structureName: string
@@ -95,21 +149,32 @@ export class DiamondDoc implements IDiamondDoc {
     );
   }
 
-  merge(other: IDiamondDoc) {
-    const _operations = mergeAndSortOperations(
-      this._operations,
-      other.operations
-    );
-    this._operations = _operations;
-    this.build();
-    return this;
-  }
-
   private build() {
     const operations: Operation[] = this.operations;
-    // Map<structureCtorId,<structureCtorId,DiamondStructure>>
+    const structureOperations: StructureOperation[] = operations.filter(o => isStructureOperation(o)) as StructureOperation[];
+    const documentOperations: DiamondDocOperation[] = operations.filter(o => isDocumentOperation(o)) as DiamondDocOperation[];
+    const map = new Map<string, StructureOperation>();
+    structureOperations.forEach(op => {
+      map.set(Clock.decode(op.id).toString(), op)
+    })
+    documentOperations.forEach(docOp => {
+      switch (docOp.type) {
+        case 'undo': {
+          docOp.ids.forEach(i => {
+            map.get(Clock.decode(i).toString())!.delete = true
+          })
+          break
+        }
+        case 'redo': {
+          docOp.ids.forEach(i => {
+            map.get(Clock.decode(i).toString())!.delete = false
+          })
+          break
+        }
+      }
+    })
     const operationsMap: Map<string, Map<string, Operation[]>> = new Map();
-    operations.forEach((o) => {
+    structureOperations.forEach((o) => {
       this.vendorClock.merge(o.id);
       getOrCreateFromMap<Operation[]>(
         operationsMap,
@@ -137,7 +202,7 @@ export class DiamondDoc implements IDiamondDoc {
     const that = this;
     return {
       tick: () => this._clock.tick(),
-      appendOperation: (operation: Operation) => {
+      appendOperation: (operation: StructureOperation) => {
         this.vendorClock.merge(operation.id);
         const editStackName = getOrCreateFromMap(
           this.structureEditorStackMap,
@@ -161,19 +226,5 @@ export class DiamondDoc implements IDiamondDoc {
     };
   }
 
-  createOperationManager(name: string): EditStack {
-    const Ctor = this.options!.editStackCtor!;
-    const editStack = new Ctor(name, (s: DiamondStructure) => {
-      getOrCreateFromMap(
-        this.structureEditorStackMap,
-        s.structureCtorId,
-        s.structureName,
-        () => {
-          return name;
-        }
-      );
-    });
-    this.editorStackMap.set(editStack.name, editStack);
-    return editStack;
-  }
+
 }

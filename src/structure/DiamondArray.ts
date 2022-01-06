@@ -4,18 +4,18 @@ import {
   DiamondDocValueType,
   ValueDescription,
   DiamondStructure,
-  Operation,
   IDiamondDocContext,
+  StructureOperation,
 } from "./../types";
 import { UPDATE } from "../constants";
 
-export interface DiamondArrayAddRight extends Operation {
+export interface DiamondArrayAddRight extends StructureOperation {
   type: "addRight";
   left: EncodedClock | null;
   value: ValueDescription;
 }
 
-export interface DiamondArrayRemove extends Operation {
+export interface DiamondArrayRemove extends StructureOperation {
   type: "remove";
   removeId: EncodedClock;
 }
@@ -37,7 +37,7 @@ export class DiamondArray implements DiamondStructure {
   constructor(
     public structureName: string,
     private context: IDiamondDocContext
-  ) {}
+  ) { }
 
   [UPDATE](operations: DiamondArrayOperation[]) {
     const nodeMap = new Map<string | null, LinkNode>();
@@ -53,13 +53,14 @@ export class DiamondArray implements DiamondStructure {
     for (const op of operations) {
       switch (op.type) {
         case "addRight": {
+          console.log(op)
           const leftNode = nodeMap.get(op.left ? op.left.toString() : null)!;
           const originRight = leftNode.right;
           leftNode.right = op.id;
           const insertNode: LinkNode = {
             left: leftNode.id,
             id: op.id,
-            delete: false,
+            delete: !!op.delete,
             right: originRight,
             value: op.value,
           };
@@ -70,7 +71,10 @@ export class DiamondArray implements DiamondStructure {
           break;
         }
         case "remove": {
-          nodeMap.get(op.removeId.toString())!.delete = true;
+
+          if (!op.delete) {
+            nodeMap.get(op.removeId.toString())!.delete = true;
+          }
         }
       }
     }
@@ -107,10 +111,10 @@ export class DiamondArray implements DiamondStructure {
     const removedItem = this.data[index].id;
     const op: DiamondArrayRemove = {
       id: id.encode(),
-      structureCtorId: DiamondArray.structureCtorId,
-      structureName: this.structureName,
       type: "remove",
       removeId: removedItem,
+      structureCtorId: this.structureCtorId,
+      structureName: this.structureName
     };
     this.context.appendOperation(op);
     this.data.splice(index, 1);
@@ -134,11 +138,11 @@ export class DiamondArray implements DiamondStructure {
     const id = this.context.tick();
     const op: DiamondArrayAddRight = {
       id: id.encode(),
-      structureCtorId: DiamondArray.structureCtorId,
-      structureName: this.structureName,
       type: "addRight",
       value: this.context.getValueDescription(value),
       left,
+      structureCtorId: this.structureCtorId,
+      structureName: this.structureName
     };
     this.context.appendOperation(op);
     const data = {

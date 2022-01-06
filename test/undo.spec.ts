@@ -1,8 +1,10 @@
 import { TestDoc } from "./fixture/test-doc";
 
-it("", () => {
+import { EditStackService } from '../src/undo'
+
+it("test map", () => {
   const doc = new TestDoc();
-  const undoManager = doc.createOperationManager("a");
+  const undoManager = doc.createOperationManager(EditStackService);
   const map = doc.getMap();
   undoManager.track(map);
   map.set("a", "0");
@@ -11,4 +13,30 @@ it("", () => {
   expect(map.get("a")).toBe(undefined);
   undoManager.redo();
   expect(map.get("a")).toBe("0");
+});
+
+
+it("test array", () => {
+  const doc = new TestDoc();
+  const remote = new TestDoc();
+  const undoManager = doc.createOperationManager(EditStackService);
+  const array = doc.getArray('arr');
+  undoManager.track(array);
+  array.push('1')
+  remote.merge(doc)
+  remote.getArray('arr').push('2')
+  remote.getArray('arr').remove(0)
+  doc.merge(remote)
+  array.push('3')
+  undoManager.pushStackElement()
+  array.push('4')
+  expect(array.toJS().join('')).toBe('234')
+  undoManager.undo();
+  expect(array.toJS().join('')).toBe('23')
+  undoManager.undo();
+  expect(array.toJS().join('')).toBe('2')
+  undoManager.redo();
+  expect(array.toJS().join('')).toBe('23')
+  undoManager.redo();
+  expect(array.toJS().join('')).toBe('234')
 });

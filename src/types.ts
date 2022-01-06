@@ -1,13 +1,31 @@
 import { Clock, EncodedClock } from "./clock";
-import { UPDATE } from "./constants";
-export interface Operation {
+import { UPDATE, } from "./constants";
+
+export interface BasicOperation {
   id: EncodedClock;
+  type: string
+}
+
+
+export interface StructureOperation extends BasicOperation {
   structureName: string;
   structureCtorId: string;
+  delete?: boolean
 }
+
+export interface DocumentOperation extends BasicOperation {
+  id: EncodedClock;
+  structureName?: undefined
+  structureCtorId?: undefined
+}
+
+
+
+export type Operation = StructureOperation | DocumentOperation
+
 export interface IDiamondDocContext {
   tick: () => Clock;
-  appendOperation(operation: Operation): void;
+  appendOperation(operation: BasicOperation): void;
   getValueDescription(value: DiamondDocValueType): ValueDescription;
   getRawValue(value: ValueDescription): DiamondDocValueType;
 }
@@ -30,7 +48,7 @@ export interface DiamondStructureCtor<T extends DiamondStructure> {
    * Each type has a different id
    */
   readonly structureCtorId: string;
-  new (structureName: string, context: IDiamondDocContext): T;
+  new(structureName: string, context: IDiamondDocContext): T;
 }
 export interface DiamondStructure {
   /**
@@ -38,7 +56,7 @@ export interface DiamondStructure {
    */
   readonly structureCtorId: string;
   readonly structureName: string;
-  [UPDATE](operations: Operation[]): this;
+  [UPDATE](operations: BasicOperation[]): this;
   toJS(): unknown;
 }
 
@@ -60,21 +78,38 @@ export const enum DiamondDocDataType {
 
 export type ValueDescription =
   | {
-      type:
-        | DiamondDocDataType.string
-        | DiamondDocDataType.int
-        | DiamondDocDataType.float64;
-      value: string;
-    }
+    type:
+    | DiamondDocDataType.string
+    | DiamondDocDataType.int
+    | DiamondDocDataType.float64;
+    value: string;
+  }
   | {
-      type: DiamondDocDataType.boolean;
-      value: boolean;
-    }
+    type: DiamondDocDataType.boolean;
+    value: boolean;
+  }
   | {
-      type: DiamondDocDataType.null;
-    }
+    type: DiamondDocDataType.null;
+  }
   | {
-      type: DiamondDocDataType.diamond;
-      structureName: string;
-      structureCtorId: string;
-    };
+    type: DiamondDocDataType.diamond;
+    structureName: string;
+    structureCtorId: string;
+  };
+
+
+export interface DiamondDocOptions {
+  /**
+   * this comment is copy from https://github.com/automerge/automerge/blob/4068e96724756e0d32c11ef0680d26204f23e2e1/README.md
+   *
+   * Copyright (c) 2017-2021 Martin Kleppmann, Ink & Switch LLC, and the Automerge contributors
+   *
+   * The `actorId` is a string that uniquely identifies the current node; if you omit `actorId`, a
+   * random UUID is generated. If you pass in your own `actorId`, you must ensure that there can never
+   * be two different processes with the same actor ID. Even if you have two different processes
+   * running on the same machine, they must have distinct actor IDs.
+   *
+   * **Unless you know what you are doing, you should stick with the default**, and let `actorId` be auto-generated.
+   */
+  actorId?: string;
+}
