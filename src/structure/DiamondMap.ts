@@ -35,7 +35,6 @@ export class DiamondMap implements DiamondStructure {
     for (const op of operations) {
       switch (op.type) {
         case "set": {
-          console.log(op)
           if (!op.delete) {
             data.set(op.key, op.value);
           }

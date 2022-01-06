@@ -53,7 +53,6 @@ export class DiamondArray implements DiamondStructure {
     for (const op of operations) {
       switch (op.type) {
         case "addRight": {
-          console.log(op)
           const leftNode = nodeMap.get(op.left ? op.left.toString() : null)!;
           const originRight = leftNode.right;
           leftNode.right = op.id;
