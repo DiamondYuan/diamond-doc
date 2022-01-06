@@ -15,7 +15,6 @@ it("test map", () => {
   expect(map.get("a")).toBe("0");
 });
 
-
 it("test array", () => {
   const doc = new TestDoc();
   const remote = new TestDoc();
@@ -40,3 +39,21 @@ it("test array", () => {
   undoManager.redo();
   expect(array.toJS().join('')).toBe('234')
 });
+
+
+it('array', () => {
+  const doc = new TestDoc();
+  const undoManager = doc.createOperationManager(EditStackService);
+  const array = doc.getArray('arr');
+  array.push('0');
+  undoManager.track(array)
+  array.push('1');
+  array.remove(0)
+  undoManager.undo();
+  expect(array.toJS().join('')).toBe('0')
+  expect(undoManager.canRedo()).toBeTruthy()
+  expect(undoManager.canUndo()).toBeFalsy()
+  array.push('2')
+  expect(undoManager.canUndo()).toBeTruthy()
+  expect(undoManager.canRedo()).toBeFalsy()
+})

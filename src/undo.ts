@@ -84,6 +84,7 @@ export class EditStackService {
   }
   applyOperation(op: Operation): void {
     this.operations.push(op)
+    this.redoStack = []
   }
 }
 
