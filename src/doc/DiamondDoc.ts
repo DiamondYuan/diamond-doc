@@ -155,7 +155,11 @@ export class DiamondDoc implements IDiamondDoc {
     const documentOperations: DiamondDocOperation[] = operations.filter(o => isDocumentOperation(o)) as DiamondDocOperation[];
     const map = new Map<string, StructureOperation>();
     structureOperations.forEach(op => {
-      map.set(Clock.decode(op.id).toString(), op)
+      map.set(Clock.decode(op.id).toString(), op);
+    })
+    operations.forEach(op => {
+      this._clock = this._clock.merge(Clock.decode(op.id));
+      this.vendorClock.merge(op.id);
     })
     documentOperations.forEach(docOp => {
       switch (docOp.type) {
@@ -182,7 +186,6 @@ export class DiamondDoc implements IDiamondDoc {
         o.structureName,
         () => []
       ).push(o);
-      this._clock = this._clock.merge(Clock.decode(o.id));
     });
     for (const [structureCtorId, structuresMap] of operationsMap.entries()) {
       for (const [
@@ -225,6 +228,4 @@ export class DiamondDoc implements IDiamondDoc {
       getValueDescription,
     };
   }
-
-
 }

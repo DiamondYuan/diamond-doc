@@ -3,15 +3,17 @@ import { TestDoc } from "./fixture/test-doc";
 import { EditStackService } from '../src/undo'
 
 it("test map", () => {
-  const doc = new TestDoc();
+  const doc = new TestDoc([], 'a');
   const undoManager = doc.createOperationManager(EditStackService);
   const map = doc.getMap();
   undoManager.track(map);
   map.set("a", "0");
   expect(undoManager.canUndo()).toBe(true);
   undoManager.undo();
+  expect(doc.version).toEqual({ a: 3 })
   expect(map.get("a")).toBe(undefined);
   undoManager.redo();
+  expect(doc.version).toEqual({ a: 4 })
   expect(map.get("a")).toBe("0");
 });
 

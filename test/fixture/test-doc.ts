@@ -4,8 +4,8 @@ import { DiamondDoc } from "./../../src/doc/DiamondDoc";
 import { DiamondMap } from "../../src";
 
 export class TestDoc extends DiamondDoc {
-  constructor(operations?: Operation[]) {
-    super(operations ?? [], [DiamondArray, DiamondMap]);
+  constructor(operations?: Operation[], name?: string) {
+    super(operations ?? [], [DiamondArray, DiamondMap], { actorId: name });
   }
   getArray(name?: string) {
     return super.get(DiamondArray, name);
