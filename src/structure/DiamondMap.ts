@@ -2,18 +2,18 @@ import {
   ValueDescription,
   DiamondDocValueType,
   DiamondStructure,
-  Operation,
   IDiamondDocContext,
+  StructureOperation,
 } from "../types";
 import { UPDATE } from "../constants";
 
-export interface DiamondMap_Set extends Operation {
+export interface DiamondMap_Set extends StructureOperation {
   type: "set";
   key: string;
   value: ValueDescription;
 }
 
-export interface DiamondMap_Del extends Operation {
+export interface DiamondMap_Del extends StructureOperation {
   type: "delete";
   key: string;
 }
@@ -35,11 +35,16 @@ export class DiamondMap implements DiamondStructure {
     for (const op of operations) {
       switch (op.type) {
         case "set": {
-          data.set(op.key, op.value);
+          if (!op.delete) {
+            data.set(op.key, op.value);
+          }
           break;
         }
         case "delete": {
-          data.delete(op.key);
+          if (!op.delete) {
+            data.delete(op.key);
+          }
+          break
         }
       }
     }
@@ -54,8 +59,8 @@ export class DiamondMap implements DiamondStructure {
       key: key,
       value: internalValue,
       type: "set",
-      structureCtorId: DiamondMap.structureCtorId,
-      structureName: this.structureName,
+      structureCtorId: this.structureCtorId,
+      structureName: this.structureName
     };
     this.context.appendOperation(op);
     this.data.set(key, internalValue);
@@ -66,8 +71,8 @@ export class DiamondMap implements DiamondStructure {
       id: this.context.tick().encode(),
       type: "delete",
       key: key,
-      structureCtorId: DiamondMap.structureCtorId,
-      structureName: this.structureName,
+      structureCtorId: this.structureCtorId,
+      structureName: this.structureName
     };
     this.context.appendOperation(op);
     this.data.delete(key);
