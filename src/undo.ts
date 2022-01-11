@@ -9,8 +9,6 @@ export interface UndoManagerOption {
   handleRedo(ops: Operation[]): void
 }
 
-
-
 export interface EditStackCtor {
   new(options: UndoManagerOption): EditStack;
 }

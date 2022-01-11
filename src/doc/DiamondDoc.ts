@@ -12,26 +12,74 @@ import {
   ValueDescription,
   DiamondDocOptions,
   StructureOperation,
-  DocumentOperation
+  DocumentOperation,
 } from "../types";
 import { UPDATE } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
 import { getOrCreateFromMap } from "../utils/get-or-create";
 import { getValueDescription, getValue } from "../utils/value-description";
-import { isDiamondStructure, isDocumentOperation, isStructureOperation } from "..//utils/is-diamond-structure";
+import {
+  isDocumentOperation,
+  isStructureOperation,
+} from "..//utils/is-diamond-structure";
 
 export interface UndoOperation extends DocumentOperation {
-  type: 'undo'
-  ids: EncodedClock[]
-
+  type: "undo";
+  ids: EncodedClock[];
 }
 
 export interface RedoOperation extends DocumentOperation {
-  type: 'redo'
-  ids: EncodedClock[]
+  type: "redo";
+  ids: EncodedClock[];
 }
 
-type DiamondDocOperation = UndoOperation | RedoOperation
+type DiamondDocOperation = UndoOperation | RedoOperation;
+
+class StructureStore {
+  public ops: StructureOperation[] = [];
+  private vendorClock: VendorClock;
+  constructor(public structureCtorId: string, public name: string) {
+    this.vendorClock = new VendorClock();
+  }
+
+  append(op: StructureOperation) {
+    this.ops.push(op);
+    this.vendorClock.merge(op.id);
+  }
+}
+
+class StructureStoreMap {
+  private structureEditorStackMap: Map<string, Map<string, StructureStore>> =
+    new Map();
+
+  get(structureCtorId: string, name: string): StructureStore {
+    return getOrCreateFromMap(
+      this.structureEditorStackMap,
+      structureCtorId,
+      name,
+      () => {
+        return new StructureStore(structureCtorId, name);
+      }
+    );
+  }
+  forEach(cb: any) {
+    for (const [
+      structureCtorId,
+      structuresMap,
+    ] of this.structureEditorStackMap.entries()) {
+      for (const [
+        structureName,
+        structureOperationsStore,
+      ] of structuresMap.entries()) {
+        cb(structureOperationsStore, structureCtorId, structureName);
+      }
+    }
+  }
+
+  append(op: StructureOperation) {
+    this.get(op.structureCtorId, op.structureName).append(op);
+  }
+}
 
 export class DiamondDoc implements IDiamondDoc {
   private _operations: Operation[];
@@ -43,7 +91,6 @@ export class DiamondDoc implements IDiamondDoc {
   private structureEditorStackMap: Map<string, Map<string, DiamondStructure>> =
     new Map();
   private editorStackMap: Map<string, EditStack> = new Map();
-
   private vendorClock: VendorClock = new VendorClock();
   get version(): IDiamondDocVersion {
     return this.vendorClock.version();
@@ -93,7 +140,7 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   createOperationManager(Ctor: EditStackCtor, name?: string): EditStack {
-    const managerName = name ?? generateUuid()
+    const managerName = name ?? generateUuid();
     const handler = (s: DiamondStructure) => {
       getOrCreateFromMap(
         this.structureEditorStackMap,
@@ -103,12 +150,12 @@ export class DiamondDoc implements IDiamondDoc {
           return managerName;
         }
       );
-    }
+    };
     const editStack = new Ctor({
       name: managerName,
       handlerTrack: handler,
       handleRedo: this.handleRedo.bind(this),
-      handleUndo: this.handleUndo.bind(this)
+      handleUndo: this.handleUndo.bind(this),
     });
     this.editorStackMap.set(editStack.name, editStack);
     return editStack;
@@ -117,21 +164,21 @@ export class DiamondDoc implements IDiamondDoc {
   private handleUndo(ops: StructureOperation[]) {
     const undo: UndoOperation = {
       id: this._clock.tick().encode(),
-      type: 'undo',
-      ids: ops.map(o => o.id)
-    }
-    this.operations.push(undo)
-    this.build()
+      type: "undo",
+      ids: ops.map((o) => o.id),
+    };
+    this.operations.push(undo);
+    this.build();
   }
 
   private handleRedo(ops: StructureOperation[]) {
     const redo: RedoOperation = {
       id: this._clock.tick().encode(),
-      type: 'redo',
-      ids: ops.map(o => o.id)
-    }
-    this.operations.push(redo)
-    this.build()
+      type: "redo",
+      ids: ops.map((o) => o.id),
+    };
+    this.operations.push(redo);
+    this.build();
   }
 
   private getStructure<T extends DiamondStructure>(
@@ -151,54 +198,47 @@ export class DiamondDoc implements IDiamondDoc {
 
   private build() {
     const operations: Operation[] = this.operations;
-    const structureOperations: StructureOperation[] = operations.filter(o => isStructureOperation(o)) as StructureOperation[];
-    const documentOperations: DiamondDocOperation[] = operations.filter(o => isDocumentOperation(o)) as DiamondDocOperation[];
     const map = new Map<string, StructureOperation>();
-    structureOperations.forEach(op => {
-      map.set(Clock.decode(op.id).toString(), op);
-    })
-    operations.forEach(op => {
+    const structureStoreMap = new StructureStoreMap();
+    const structureOperations: StructureOperation[] = [];
+    for (const op of operations) {
       this._clock = this._clock.merge(Clock.decode(op.id));
       this.vendorClock.merge(op.id);
-    })
-    documentOperations.forEach(docOp => {
-      switch (docOp.type) {
-        case 'undo': {
-          docOp.ids.forEach(i => {
-            map.get(Clock.decode(i).toString())!.delete = true
-          })
-          break
-        }
-        case 'redo': {
-          docOp.ids.forEach(i => {
-            map.get(Clock.decode(i).toString())!.delete = false
-          })
-          break
+      if (isStructureOperation(op)) {
+        structureOperations.push(op);
+        map.set(Clock.decode(op.id).toString(), op);
+        structureStoreMap.append(op);
+      } else {
+        const docOp = op as DiamondDocOperation;
+        switch (docOp.type) {
+          case "undo": {
+            docOp.ids.forEach((i) => {
+              map.get(Clock.decode(i).toString())!.delete = true;
+            });
+            break;
+          }
+          case "redo": {
+            docOp.ids.forEach((i) => {
+              map.get(Clock.decode(i).toString())!.delete = false;
+            });
+            break;
+          }
         }
       }
-    })
-    const operationsMap: Map<string, Map<string, Operation[]>> = new Map();
-    structureOperations.forEach((o) => {
-      this.vendorClock.merge(o.id);
-      getOrCreateFromMap<Operation[]>(
-        operationsMap,
-        o.structureCtorId,
-        o.structureName,
-        () => []
-      ).push(o);
-    });
-    for (const [structureCtorId, structuresMap] of operationsMap.entries()) {
-      for (const [
-        structureName,
-        structureOperations,
-      ] of structuresMap.entries()) {
+    }
+    structureStoreMap.forEach(
+      (
+        store: StructureStore,
+        structureCtorId: string,
+        structureName: string
+      ) => {
         const structure = this.get(
           this.ctorMap.get(structureCtorId)!,
           structureName
         );
-        structure[UPDATE](structureOperations);
+        structure[UPDATE](store.ops);
       }
-    }
+    );
   }
 
   private createContext(): IDiamondDocContext {
