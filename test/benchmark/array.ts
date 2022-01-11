@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs/promises";
 import zlib from "zlib";
 import assert from "assert";
+import { EditStackService } from "../../src/undo";
 
 const run = async () => {
   const dataPath = path.join(__dirname, "data/automerge-paper.json.gz");
@@ -33,12 +34,17 @@ const run = async () => {
   const array = doc.getArray("benchmark");
   array.push("");
   console.time();
+  const undo = doc.createOperationManager(EditStackService);
+  undo.track(array);
   for (const { patches } of json.txns) {
     for (const [pos, delHere, insContent] of patches) {
       if (delHere) {
         array.remove(pos + delHere);
       } else {
         array.insert(pos, insContent);
+      }
+      if (Math.random() * 100 > 90) {
+        undo.pushStackElement();
       }
     }
   }
@@ -53,6 +59,12 @@ const run = async () => {
   assert(array2.toJS().join("") === content, "equal");
   console.timeEnd("getArray");
 
+  console.time("undo");
+  undo.undo();
+  console.timeEnd("undo");
+  console.time("redo");
+  undo.redo();
+  console.timeEnd("redo");
   assert(json.endContent === content, "equal");
   assert(array.toJS().join("") === content, "equal");
 };
