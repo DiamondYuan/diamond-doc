@@ -1,6 +1,5 @@
 import { TestDoc } from "../fixture/test-doc";
 
-const index = 0;
 const data: number[] = [];
 for (let i = 0; i < 10000; i++) {
   const a1 = Math.floor(Math.random() * i);
@@ -17,3 +16,5 @@ data.forEach((e) => {
 });
 const time = Date.now() - start;
 console.log(time);
+
+console.log(array.toJS());
