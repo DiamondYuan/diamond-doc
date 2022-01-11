@@ -52,6 +52,7 @@ export function getValueDescription(
       }
     }
     default: {
+      /* istanbul ignore next */
       throw new Error(`Unsupported type of value: ${value}`);
     }
   }

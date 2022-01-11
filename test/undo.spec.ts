@@ -65,7 +65,7 @@ it("test canRedo and canUndo", () => {
   expect(undoManager.canUndo()).toBeTruthy();
   expect(undoManager.canRedo()).toBeFalsy();
   var version = doc.version;
-  undoManager.canRedo();
+  undoManager.redo();
   expect(doc.version).toEqual(version);
   const newDoc = new TestDoc(doc.operations);
   expect(newDoc.version).toEqual(doc.version);

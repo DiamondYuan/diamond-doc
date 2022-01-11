@@ -91,7 +91,10 @@ export class DiamondArray implements DiamondStructure {
           break;
         }
         default: {
+          /* istanbul ignore next */
           const _op: never = op;
+          /* istanbul ignore next */
+          throw new Error(`unknown op: ${JSON.stringify(op)}`);
         }
       }
     }

@@ -58,6 +58,7 @@ it("map and array", () => {
 it("support stringify and parse", () => {
   const local = new TestDoc([]);
   const testMap = local.get(DiamondArray, "list");
+  testMap.unshift("00");
   testMap.push("01");
   testMap.push("02");
 
@@ -66,9 +67,14 @@ it("support stringify and parse", () => {
   const newLocal = new TestDoc(JSON.parse(JSON.stringify(local.operations)));
   newLocal.getArray("list").push("03");
   local.merge(newLocal);
-  expect(local.get(DiamondArray, "list").toJS()).toEqual(["01", "02", "03"]);
+  expect(local.get(DiamondArray, "list").toJS()).toEqual([
+    "00",
+    "01",
+    "02",
+    "03",
+  ]);
 
   expect(
     new TestDoc(getOperationsByVersion(local, snapshot)).getArray("list").toJS()
-  ).toEqual(["01", "02"]);
+  ).toEqual(["00", "01", "02"]);
 });
