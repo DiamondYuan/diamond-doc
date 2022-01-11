@@ -14,14 +14,13 @@ import {
   StructureOperation,
   DocumentOperation,
 } from "../types";
-import { UPDATE } from "../constants";
+import { UPDATE, UNDO, REDO } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
 import { getOrCreateFromMap } from "../utils/get-or-create";
 import { getValueDescription, getValue } from "../utils/value-description";
-import {
-  isDocumentOperation,
-  isStructureOperation,
-} from "..//utils/is-diamond-structure";
+import { isStructureOperation } from "..//utils/is-diamond-structure";
+import { StructureStore } from "./structure-store";
+import { groupByCtorAndName } from "../utils/filter-operations";
 
 export interface UndoOperation extends DocumentOperation {
   type: "undo";
@@ -34,19 +33,6 @@ export interface RedoOperation extends DocumentOperation {
 }
 
 type DiamondDocOperation = UndoOperation | RedoOperation;
-
-class StructureStore {
-  public ops: StructureOperation[] = [];
-  private vendorClock: VendorClock;
-  constructor(public structureCtorId: string, public name: string) {
-    this.vendorClock = new VendorClock();
-  }
-
-  append(op: StructureOperation) {
-    this.ops.push(op);
-    this.vendorClock.merge(op.id);
-  }
-}
 
 class StructureStoreMap {
   private structureEditorStackMap: Map<string, Map<string, StructureStore>> =
@@ -82,8 +68,6 @@ class StructureStoreMap {
 }
 
 export class DiamondDoc implements IDiamondDoc {
-  private _operations: Operation[];
-  private ctx: IDiamondDocContext;
   private _clock: Clock;
   private ctorMap: Map<string, DiamondStructureCtor<DiamondStructure>> =
     new Map();
@@ -96,30 +80,28 @@ export class DiamondDoc implements IDiamondDoc {
     return this.vendorClock.version();
   }
   private structureStoreMap: StructureStoreMap;
+  private docOps: DiamondDocOperation[] = [];
   constructor(
-    _operations: Operation[],
+    operations: Operation[],
     ctors: DiamondStructureCtor<DiamondStructure>[],
     options?: DiamondDocOptions
   ) {
     this._clock = new Clock(options?.actorId ?? generateUuid());
-    this._operations = _operations;
-    this.ctx = this.createContext();
     ctors.forEach((ctor) => {
       this.ctorMap.set(ctor.structureCtorId, ctor);
     });
     this.structureStoreMap = new StructureStoreMap();
-    this.build();
+    this.build(operations);
   }
 
   get operations() {
-    return this._operations;
-    // let res: Operation[] = [];
-    // this.structureStoreMap.forEach((e: any) => {
-    //   res = res.concat(e.ops);
-    // });
-    // return res.sort((a, b) => {
-    //   return Clock.compare(a.id, b.id);
-    // });
+    let res: Operation[] = this.docOps;
+    this.structureStoreMap.forEach((e: any) => {
+      res = res.concat(e.ops);
+    });
+    return res.sort((a, b) => {
+      return Clock.compare(a.id, b.id);
+    });
   }
 
   get<T extends DiamondStructure>(
@@ -135,12 +117,7 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   merge(other: IDiamondDoc) {
-    const _operations = mergeAndSortOperations(
-      this._operations,
-      other.operations
-    );
-    this._operations = _operations;
-    this.build();
+    this.build(mergeAndSortOperations(this.operations, other.operations));
     return this;
   }
 
@@ -167,23 +144,39 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   private handleUndo(ops: StructureOperation[]) {
+    const clock = this._clock.tick();
     const undo: UndoOperation = {
-      id: this._clock.tick().encode(),
+      id: clock.encode(),
       type: "undo",
       ids: ops.map((o) => o.id),
     };
-    this.operations.push(undo);
-    this.build();
+    groupByCtorAndName(ops, (id, name, ops) => {
+      if (this.hasStructure(id, name)) {
+        this.getStructure(id, name)[UNDO](ops);
+      }
+    });
+    this.appendDocOp(undo);
+  }
+
+  private appendDocOp(op: RedoOperation | UndoOperation) {
+    this.docOps.push(op);
+    this._clock.merge(Clock.decode(op.id));
+    this.vendorClock.merge(op.id);
   }
 
   private handleRedo(ops: StructureOperation[]) {
-    const redo: RedoOperation = {
-      id: this._clock.tick().encode(),
+    const clock = this._clock.tick();
+    const undo: RedoOperation = {
+      id: clock.encode(),
       type: "redo",
       ids: ops.map((o) => o.id),
     };
-    this.operations.push(redo);
-    this.build();
+    groupByCtorAndName(ops, (id, name, ops) => {
+      if (this.hasStructure(id, name)) {
+        this.getStructure(id, name)[REDO](ops);
+      }
+    });
+    this.appendDocOp(undo);
   }
 
   private getStructure<T extends DiamondStructure>(
@@ -196,7 +189,10 @@ export class DiamondDoc implements IDiamondDoc {
       structureName,
       () => {
         const Ctor = this.ctorMap.get(structureCtorId)!;
-        const imp = new Ctor(structureName, this.ctx);
+        const imp = new Ctor(
+          structureName,
+          this.createContext(structureCtorId, structureName)
+        );
         imp[UPDATE](
           this.structureStoreMap.get(structureCtorId, structureName).ops
         );
@@ -205,8 +201,7 @@ export class DiamondDoc implements IDiamondDoc {
     );
   }
 
-  private build() {
-    const operations: Operation[] = this.operations;
+  private build(operations: Operation[]) {
     const map = new Map<string, StructureOperation>();
     const structureStoreMap = new StructureStoreMap();
     const structureOperations: StructureOperation[] = [];
@@ -253,7 +248,10 @@ export class DiamondDoc implements IDiamondDoc {
     this.structureStoreMap = structureStoreMap;
   }
 
-  private createContext(): IDiamondDocContext {
+  private createContext(
+    structureCtorId: string,
+    structureName: string
+  ): IDiamondDocContext {
     const that = this;
     return {
       tick: () => this._clock.tick(),
@@ -270,8 +268,7 @@ export class DiamondDoc implements IDiamondDoc {
         if (editStackName) {
           this.editorStackMap.get(editStackName)?.applyOperation(operation);
         }
-        this._operations.push(operation);
-        // this.structureStoreMap.append(operation);
+        this.structureStoreMap.append(operation);
       },
       getRawValue: (v: ValueDescription) => {
         return getValue(v, (structureCtorId: string, structureName: string) => {
@@ -279,6 +276,9 @@ export class DiamondDoc implements IDiamondDoc {
         });
       },
       getValueDescription,
+      getStore() {
+        return that.structureStoreMap.get(structureCtorId, structureName);
+      },
     };
   }
 }

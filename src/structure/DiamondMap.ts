@@ -5,7 +5,7 @@ import {
   IDiamondDocContext,
   StructureOperation,
 } from "../types";
-import { UPDATE } from "../constants";
+import { UPDATE, UNDO, REDO } from "../constants";
 
 export interface DiamondMap_Set extends StructureOperation {
   type: "set";
@@ -29,6 +29,20 @@ export class DiamondMap implements DiamondStructure {
   ) {
     this.data = new Map<string, ValueDescription>();
   }
+  [REDO](operations: DiamondMapOperation[]) {
+    const store = this.context.getStore();
+    for (const op of operations) {
+      store.redo(op.id);
+    }
+    this[UPDATE](store.ops as DiamondMapOperation[]);
+  }
+  [UNDO](operations: DiamondMapOperation[]) {
+    const store = this.context.getStore();
+    for (const op of operations) {
+      store.undo(op.id);
+    }
+    this[UPDATE](store.ops as DiamondMapOperation[]);
+  }
 
   [UPDATE](operations: DiamondMapOperation[]) {
     const data = new Map<string, ValueDescription>();
@@ -44,7 +58,7 @@ export class DiamondMap implements DiamondStructure {
           if (!op.delete) {
             data.delete(op.key);
           }
-          break
+          break;
         }
       }
     }
@@ -60,7 +74,7 @@ export class DiamondMap implements DiamondStructure {
       value: internalValue,
       type: "set",
       structureCtorId: this.structureCtorId,
-      structureName: this.structureName
+      structureName: this.structureName,
     };
     this.context.appendOperation(op);
     this.data.set(key, internalValue);
@@ -72,7 +86,7 @@ export class DiamondMap implements DiamondStructure {
       type: "delete",
       key: key,
       structureCtorId: this.structureCtorId,
-      structureName: this.structureName
+      structureName: this.structureName,
     };
     this.context.appendOperation(op);
     this.data.delete(key);

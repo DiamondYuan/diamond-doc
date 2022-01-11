@@ -40,6 +40,10 @@ it("test array", () => {
   expect(array.toJS().join("")).toBe("23");
   undoManager.redo();
   expect(array.toJS().join("")).toBe("234");
+
+  const newDoc = new TestDoc(doc.operations);
+  expect(newDoc.version).toEqual(doc.version);
+  expect(newDoc.getArray("arr").toJS()).toEqual(array.toJS());
 });
 
 it("test canRedo and canUndo", () => {

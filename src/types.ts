@@ -1,33 +1,32 @@
 import { Clock, EncodedClock } from "./clock";
-import { UPDATE, } from "./constants";
+import { UPDATE, UNDO, REDO } from "./constants";
+import { StructureStore } from "./doc/structure-store";
 
 export interface BasicOperation {
   id: EncodedClock;
-  type: string
+  type: string;
 }
-
 
 export interface StructureOperation extends BasicOperation {
   structureName: string;
   structureCtorId: string;
-  delete?: boolean
+  delete?: boolean;
 }
 
 export interface DocumentOperation extends BasicOperation {
   id: EncodedClock;
-  structureName?: undefined
-  structureCtorId?: undefined
+  structureName?: undefined;
+  structureCtorId?: undefined;
 }
 
-
-
-export type Operation = StructureOperation | DocumentOperation
+export type Operation = StructureOperation | DocumentOperation;
 
 export interface IDiamondDocContext {
   tick: () => Clock;
   appendOperation(operation: BasicOperation): void;
   getValueDescription(value: DiamondDocValueType): ValueDescription;
   getRawValue(value: ValueDescription): DiamondDocValueType;
+  getStore(): StructureStore;
 }
 
 export interface IDiamondDocVersion {
@@ -48,7 +47,7 @@ export interface DiamondStructureCtor<T extends DiamondStructure> {
    * Each type has a different id
    */
   readonly structureCtorId: string;
-  new(structureName: string, context: IDiamondDocContext): T;
+  new (structureName: string, context: IDiamondDocContext): T;
 }
 export interface DiamondStructure {
   /**
@@ -57,6 +56,8 @@ export interface DiamondStructure {
   readonly structureCtorId: string;
   readonly structureName: string;
   [UPDATE](operations: BasicOperation[]): this;
+  [UNDO](operations: BasicOperation[]): void;
+  [REDO](operations: BasicOperation[]): void;
   toJS(): unknown;
 }
 
@@ -78,25 +79,24 @@ export const enum DiamondDocDataType {
 
 export type ValueDescription =
   | {
-    type:
-    | DiamondDocDataType.string
-    | DiamondDocDataType.int
-    | DiamondDocDataType.float64;
-    value: string;
-  }
+      type:
+        | DiamondDocDataType.string
+        | DiamondDocDataType.int
+        | DiamondDocDataType.float64;
+      value: string;
+    }
   | {
-    type: DiamondDocDataType.boolean;
-    value: boolean;
-  }
+      type: DiamondDocDataType.boolean;
+      value: boolean;
+    }
   | {
-    type: DiamondDocDataType.null;
-  }
+      type: DiamondDocDataType.null;
+    }
   | {
-    type: DiamondDocDataType.diamond;
-    structureName: string;
-    structureCtorId: string;
-  };
-
+      type: DiamondDocDataType.diamond;
+      structureName: string;
+      structureCtorId: string;
+    };
 
 export interface DiamondDocOptions {
   /**
