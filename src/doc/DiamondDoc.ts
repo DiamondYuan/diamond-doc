@@ -113,6 +113,13 @@ export class DiamondDoc implements IDiamondDoc {
 
   get operations() {
     return this._operations;
+    // let res: Operation[] = [];
+    // this.structureStoreMap.forEach((e: any) => {
+    //   res = res.concat(e.ops);
+    // });
+    // return res.sort((a, b) => {
+    //   return Clock.compare(a.id, b.id);
+    // });
   }
 
   get<T extends DiamondStructure>(
@@ -264,6 +271,7 @@ export class DiamondDoc implements IDiamondDoc {
           this.editorStackMap.get(editStackName)?.applyOperation(operation);
         }
         this._operations.push(operation);
+        // this.structureStoreMap.append(operation);
       },
       getRawValue: (v: ValueDescription) => {
         return getValue(v, (structureCtorId: string, structureName: string) => {
