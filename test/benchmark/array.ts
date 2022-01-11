@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import zlib from "zlib";
 import assert from "assert";
 import { EditStackService } from "../../src/undo";
+import { isStructureOperation } from "../../src/utils/is-diamond-structure";
 
 const run = async () => {
   const dataPath = path.join(__dirname, "data/automerge-paper.json.gz");
@@ -67,6 +68,17 @@ const run = async () => {
   console.timeEnd("redo");
   assert(json.endContent === content, "equal");
   assert(array.toJS().join("") === content, "equal");
+
+  console.time("js-array-push");
+  const arr = [];
+  for (const op of reload.operations) {
+    if (isStructureOperation(op)) {
+      arr.push(op);
+    } else {
+      arr.push(op);
+    }
+  }
+  console.timeEnd("js-array-push");
 };
 
 run();
