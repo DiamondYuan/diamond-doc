@@ -95,6 +95,7 @@ export class DiamondDoc implements IDiamondDoc {
   get version(): IDiamondDocVersion {
     return this.vendorClock.version();
   }
+  private structureStoreMap: StructureStoreMap;
   constructor(
     _operations: Operation[],
     ctors: DiamondStructureCtor<DiamondStructure>[],
@@ -106,6 +107,7 @@ export class DiamondDoc implements IDiamondDoc {
     ctors.forEach((ctor) => {
       this.ctorMap.set(ctor.structureCtorId, ctor);
     });
+    this.structureStoreMap = new StructureStoreMap();
     this.build();
   }
 
@@ -118,15 +120,11 @@ export class DiamondDoc implements IDiamondDoc {
     structureName?: string
   ): T {
     const name: string = structureName ?? this._clock.tick().toString();
-    return getOrCreateFromMap<T>(
-      this.structureMap,
-      Factory.structureCtorId,
-      name,
-      () => {
-        const Ctor = this.ctorMap.get(Factory.structureCtorId)!;
-        return new Ctor(name, this.ctx);
-      }
-    );
+    return this.getStructure(Factory.structureCtorId, name);
+  }
+
+  private hasStructure(id: string, name: string) {
+    return this.structureMap.get(id)?.has(name);
   }
 
   merge(other: IDiamondDoc) {
@@ -191,7 +189,11 @@ export class DiamondDoc implements IDiamondDoc {
       structureName,
       () => {
         const Ctor = this.ctorMap.get(structureCtorId)!;
-        return new Ctor(structureName, this.ctx);
+        const imp = new Ctor(structureName, this.ctx);
+        imp[UPDATE](
+          this.structureStoreMap.get(structureCtorId, structureName).ops
+        );
+        return imp;
       }
     );
   }
@@ -232,13 +234,16 @@ export class DiamondDoc implements IDiamondDoc {
         structureCtorId: string,
         structureName: string
       ) => {
-        const structure = this.get(
-          this.ctorMap.get(structureCtorId)!,
-          structureName
-        );
-        structure[UPDATE](store.ops);
+        if (this.hasStructure(structureCtorId, structureName)) {
+          const structure = this.get(
+            this.ctorMap.get(structureCtorId)!,
+            structureName
+          );
+          structure[UPDATE](store.ops);
+        }
       }
     );
+    this.structureStoreMap = structureStoreMap;
   }
 
   private createContext(): IDiamondDocContext {
