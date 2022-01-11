@@ -20,7 +20,6 @@ export interface DocumentOperation extends BasicOperation {
 }
 
 export type Operation = StructureOperation | DocumentOperation;
-
 export interface IDiamondDocContext {
   tick: () => Clock;
   appendOperation(operation: BasicOperation): void;
@@ -55,7 +54,7 @@ export interface DiamondStructure {
    */
   readonly structureCtorId: string;
   readonly structureName: string;
-  [UPDATE](operations: BasicOperation[]): this;
+  [UPDATE](operations: BasicOperation[]): void;
   [UNDO](operations: BasicOperation[]): void;
   [REDO](operations: BasicOperation[]): void;
   toJS(): unknown;

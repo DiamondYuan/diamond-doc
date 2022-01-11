@@ -60,10 +60,12 @@ export class DiamondMap implements DiamondStructure {
           }
           break;
         }
+        default: {
+          const _op: never = op;
+        }
       }
     }
     this.data = data;
-    return this;
   }
 
   set(key: string, value: DiamondDocValueType) {

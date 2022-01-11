@@ -88,6 +88,10 @@ export class DiamondArray implements DiamondStructure {
           if (!op.delete) {
             nodeMap.get(op.removeId.toString())!.delete = true;
           }
+          break;
+        }
+        default: {
+          const _op: never = op;
         }
       }
     }
@@ -108,7 +112,6 @@ export class DiamondArray implements DiamondStructure {
       }
     }
     this.data = data;
-    return this;
   }
 
   push(value: DiamondDocValueType): void {
