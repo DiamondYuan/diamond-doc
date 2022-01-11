@@ -15,7 +15,8 @@
   "scripts": {
     "build": "rollup -c",
     "test": "jest",
-    "cov": "jest  --collect-coverage"
+    "cov": "jest  --collect-coverage",
+    "benchmark": " ts-node test/benchmark/array.ts"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
