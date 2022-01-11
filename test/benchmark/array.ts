@@ -43,6 +43,16 @@ const run = async () => {
     }
   }
   console.timeEnd();
+
+  console.time("reload");
+  const reload = new TestDoc(doc.operations);
+  console.timeEnd("reload");
+
+  console.time("getArray");
+  const array2 = reload.getArray("benchmark");
+  assert(array2.toJS().join("") === content, "equal");
+  console.timeEnd("getArray");
+
   assert(json.endContent === content, "equal");
   assert(array.toJS().join("") === content, "equal");
 };
