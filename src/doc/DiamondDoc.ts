@@ -21,6 +21,7 @@ import { getValueDescription, getValue } from "../utils/value-description";
 import { isStructureOperation } from "..//utils/is-diamond-structure";
 import { StructureStore } from "./structure-store";
 import { groupByCtorAndName } from "../utils/filter-operations";
+import { binarySearch } from "../utils/binarySearch";
 
 export interface UndoOperation extends DocumentOperation {
   type: "undo";
@@ -202,7 +203,6 @@ export class DiamondDoc implements IDiamondDoc {
   }
 
   private build(operations: Operation[]) {
-    const map = new Map<string, StructureOperation>();
     const structureStoreMap = new StructureStoreMap();
     const structureOperations: StructureOperation[] = [];
     for (const op of operations) {
@@ -210,20 +210,23 @@ export class DiamondDoc implements IDiamondDoc {
       this.vendorClock.merge(op.id);
       if (isStructureOperation(op)) {
         structureOperations.push(op);
-        map.set(Clock.decode(op.id).toString(), op);
         structureStoreMap.append(op);
       } else {
         const docOp = op as DiamondDocOperation;
         switch (docOp.type) {
           case "undo": {
             docOp.ids.forEach((i) => {
-              map.get(Clock.decode(i).toString())!.delete = true;
+              structureOperations[
+                binarySearch(structureOperations, Clock.decode(i))
+              ].delete = true;
             });
             break;
           }
           case "redo": {
             docOp.ids.forEach((i) => {
-              map.get(Clock.decode(i).toString())!.delete = false;
+              structureOperations[
+                binarySearch(structureOperations, Clock.decode(i))
+              ].delete = false;
             });
             break;
           }
