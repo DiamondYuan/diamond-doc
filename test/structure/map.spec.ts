@@ -7,10 +7,14 @@ function expectEquals(map: DiamondMap) {
   };
 }
 it("test map", () => {
-  const remote = new DiamondDoc([], [DiamondMap], { actorId: "a" });
+  const remote = new DiamondDoc([], [DiamondMap], {
+    actorId: "c1ba110c-f865-4a5e-a1a7-ae054aa6f0aa",
+  });
   const remoteMap = remote.get(DiamondMap, "properties");
 
-  const local = new DiamondDoc([], [DiamondMap], { actorId: "b" });
+  const local = new DiamondDoc([], [DiamondMap], {
+    actorId: "c1ba110c-f865-4a5e-a1a7-ae054aa6f0ab",
+  });
   const localMap = local.get(DiamondMap, "properties");
 
   localMap.set("name", "Alice");
@@ -30,7 +34,9 @@ it("test map", () => {
   expect(local.operations).toEqual(remote.operations);
   expect(local.version).toEqual(remote.version);
   const v = local.get(DiamondMap);
-  expect(v.structureName).toEqual("0000000003:b");
+  expect(v.structureName).toEqual(
+    "0000000003:c1ba110c-f865-4a5e-a1a7-ae054aa6f0ab"
+  );
 });
 
 it("value", () => {
@@ -58,8 +64,12 @@ it("value", () => {
 });
 
 it("test delete and add", () => {
-  const remote = new DiamondDoc([], [DiamondMap], { actorId: "a" });
-  const local = new DiamondDoc([], [DiamondMap], { actorId: "b" });
+  const remote = new DiamondDoc([], [DiamondMap], {
+    actorId: "c1ba110c-f865-4a5e-a1a7-ae054aa6f0aa",
+  });
+  const local = new DiamondDoc([], [DiamondMap], {
+    actorId: "c1ba110c-f865-4a5e-a1a7-ae054aa6f0ab",
+  });
 
   const map_local = local.get(DiamondMap, "map");
   map_local.set("key", "local");
@@ -68,12 +78,15 @@ it("test delete and add", () => {
   const map_remote = remote.get(DiamondMap, "map");
   map_remote.set("key", "remote");
 
-  expect(remote.version).toEqual({ a: 1 });
+  expect(remote.version).toEqual({ "c1ba110c-f865-4a5e-a1a7-ae054aa6f0aa": 1 });
 
   local.merge(remote);
   remote.merge(local);
 
-  expect(remote.version).toEqual({ a: 1, b: 2 });
+  expect(remote.version).toEqual({
+    "c1ba110c-f865-4a5e-a1a7-ae054aa6f0aa": 1,
+    "c1ba110c-f865-4a5e-a1a7-ae054aa6f0ab": 2,
+  });
 
   expect(map_remote.get("key")).toEqual(undefined);
   expect(map_remote.get("key")).toEqual(undefined);

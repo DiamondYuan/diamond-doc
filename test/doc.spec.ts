@@ -68,3 +68,11 @@ it("set option.time true, every operation has time", () => {
     expect(e.time).not.toBeUndefined();
   });
 });
+
+it("actorId is not uuid, expect throw", () => {
+  try {
+    new TestDoc([], { time: true, actorId: "a" });
+  } catch (error) {
+    expect((error as Error).message).toEqual("actorId should be uuid");
+  }
+});

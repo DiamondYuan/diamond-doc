@@ -1,7 +1,7 @@
 import { EditStack, EditStackCtor } from "./../undo";
 import { VendorClock } from "./../vendor-clock";
 import { Clock, EncodedClock } from "../clock";
-import { generateUuid } from "../base/uuid";
+import { generateUuid, isUUID } from "../base/uuid";
 import {
   IDiamondDoc,
   Operation,
@@ -13,7 +13,6 @@ import {
   DiamondDocOptions,
   StructureOperation,
   DocumentOperation,
-  BasicOperation,
 } from "../types";
 import { UPDATE, UNDO, REDO } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
@@ -87,6 +86,10 @@ export class DiamondDoc implements IDiamondDoc {
     ctors: DiamondStructureCtor<DiamondStructure>[],
     protected options?: DiamondDocOptions
   ) {
+    const actorId = options?.actorId ?? generateUuid();
+    if (!isUUID(actorId)) {
+      throw new Error("actorId should be uuid");
+    }
     this._clock = new Clock(options?.actorId ?? generateUuid());
     ctors.forEach((ctor) => {
       this.ctorMap.set(ctor.structureCtorId, ctor);
