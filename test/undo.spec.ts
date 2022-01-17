@@ -73,3 +73,21 @@ it("test canRedo and canUndo", () => {
   expect(newDoc.version).toEqual(doc.version);
   expect(newDoc.getArray("arr").toJS()).toEqual(array.toJS());
 });
+
+it("test array", () => {
+  const doc = new TestDoc();
+  const undoManager = doc.createOperationManager(EditStackService);
+  const array = doc.getArray("arr");
+  undoManager.track(array);
+  const cache: number[][] = [[]];
+  for (let i = 0; i < 10; i++) {
+    array.push(i);
+    undoManager.pushStackElement();
+    cache.push([...(array.toJS() as number[])]);
+  }
+
+  for (let i = 0; i < 10; i++) {
+    undoManager.undo();
+    expect(array.toJS()).toEqual(cache[9 - i]);
+  }
+});
