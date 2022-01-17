@@ -116,13 +116,16 @@ export class DiamondDoc implements IDiamondDoc {
     return this.getStructure(Factory.structureCtorId, name);
   }
 
-  private hasStructure(id: string, name: string) {
-    return this.structureMap.get(id)?.has(name);
-  }
-
   merge(other: IDiamondDoc) {
     this.build(mergeAndSortOperations(this.operations, other.operations));
     return this;
+  }
+
+  protected getTime(): number | undefined {
+    if (this.options?.time) {
+      return Date.now();
+    }
+    return;
   }
 
   createOperationManager(Ctor: EditStackCtor, name?: string): EditStack {
@@ -145,6 +148,10 @@ export class DiamondDoc implements IDiamondDoc {
     });
     this.editorStackMap.set(editStack.name, editStack);
     return editStack;
+  }
+
+  private hasStructure(id: string, name: string) {
+    return this.structureMap.get(id)?.has(name);
   }
 
   private handleUndo(ops: StructureOperation[]) {
@@ -183,13 +190,6 @@ export class DiamondDoc implements IDiamondDoc {
       }
     });
     this.appendDocOp(undo);
-  }
-
-  protected getTime(): number | undefined {
-    if (this.options?.time) {
-      return Date.now();
-    }
-    return;
   }
 
   private getStructure<T extends DiamondStructure>(
