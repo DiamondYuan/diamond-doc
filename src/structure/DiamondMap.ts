@@ -80,6 +80,7 @@ export class DiamondMap implements DiamondStructure {
       type: "set",
       structureCtorId: this.structureCtorId,
       structureName: this.structureName,
+      time: this.context.getTime(),
     };
     this.context.appendOperation(op);
     this.data.set(key, internalValue);
@@ -92,6 +93,7 @@ export class DiamondMap implements DiamondStructure {
       key: key,
       structureCtorId: this.structureCtorId,
       structureName: this.structureName,
+      time: this.context.getTime(),
     };
     this.context.appendOperation(op);
     this.data.delete(key);

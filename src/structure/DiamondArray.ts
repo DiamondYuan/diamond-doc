@@ -134,6 +134,7 @@ export class DiamondArray implements DiamondStructure {
       removeId: removedItem,
       structureCtorId: this.structureCtorId,
       structureName: this.structureName,
+      time: this.context.getTime(),
     };
     this.context.appendOperation(op);
     this.data.splice(index, 1);
@@ -162,6 +163,7 @@ export class DiamondArray implements DiamondStructure {
       left,
       structureCtorId: this.structureCtorId,
       structureName: this.structureName,
+      time: this.context.getTime(),
     };
     this.context.appendOperation(op);
     const data = {

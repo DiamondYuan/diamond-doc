@@ -6,6 +6,7 @@ import {
   Operation,
 } from "../src";
 import { Clock, Ordering } from "../src/clock";
+import { EditStackService } from "../src/undo";
 import { TestDoc } from "./fixture/test-doc";
 
 class ThrowArray extends DiamondArray {
@@ -38,4 +39,32 @@ it("operation sort", () => {
     }
     pre = op;
   }
+});
+
+it("set option.time true, every operation has time", () => {
+  const startTime = Date.now();
+  const doc = new TestDoc([], { time: true });
+  const undoManager = doc.createOperationManager(EditStackService);
+  const arr = doc.getArray("test");
+  undoManager.track(arr);
+  arr.push("1");
+  undoManager.pushStackElement();
+  arr.remove(0);
+  const map = doc.getMap("test");
+  undoManager.track(map);
+  map.set("key", "1");
+  undoManager.pushStackElement();
+  map.delete("key");
+  undoManager.undo();
+  expect(map.get("key")).toEqual("1");
+  undoManager.undo();
+  expect(arr.toJS()).toEqual(["1"]);
+  undoManager.redo();
+  expect(arr.toJS()).toEqual([]);
+  undoManager.redo();
+  expect(map.get("key")).toBeUndefined();
+  doc.operations.forEach((e) => {
+    expect(e.time! >= startTime).toBeTruthy();
+    expect(e.time).not.toBeUndefined();
+  });
 });

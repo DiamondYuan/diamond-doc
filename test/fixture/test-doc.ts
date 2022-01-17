@@ -1,11 +1,11 @@
 import { DiamondArray } from "./../../src/structure/DiamondArray";
-import { Operation } from "./../../src/types";
+import { Operation, DiamondDocOptions } from "./../../src/types";
 import { DiamondDoc } from "./../../src/doc/DiamondDoc";
 import { DiamondMap } from "../../src";
 
 export class TestDoc extends DiamondDoc {
-  constructor(operations?: Operation[], name?: string) {
-    super(operations ?? [], [DiamondArray, DiamondMap], { actorId: name });
+  constructor(operations?: Operation[], options?: DiamondDocOptions) {
+    super(operations ?? [], [DiamondArray, DiamondMap], options);
   }
   getArray(name?: string) {
     return super.get(DiamondArray, name);

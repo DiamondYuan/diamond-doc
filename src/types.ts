@@ -5,8 +5,8 @@ import { StructureStore } from "./doc/structure-store";
 export interface BasicOperation {
   id: EncodedClock;
   type: string;
+  time?: number;
 }
-
 export interface StructureOperation extends BasicOperation {
   structureName: string;
   structureCtorId: string;
@@ -26,6 +26,7 @@ export interface IDiamondDocContext {
   getValueDescription(value: DiamondDocValueType): ValueDescription;
   getRawValue(value: ValueDescription): DiamondDocValueType;
   getStore(): StructureStore;
+  getTime(): number | undefined;
 }
 
 export interface IDiamondDocVersion {
@@ -111,4 +112,8 @@ export interface DiamondDocOptions {
    * **Unless you know what you are doing, you should stick with the default**, and let `actorId` be auto-generated.
    */
   actorId?: string;
+  /**
+   * default: false
+   */
+  time?: boolean;
 }

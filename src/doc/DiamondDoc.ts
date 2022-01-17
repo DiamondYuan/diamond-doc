@@ -13,6 +13,7 @@ import {
   DiamondDocOptions,
   StructureOperation,
   DocumentOperation,
+  BasicOperation,
 } from "../types";
 import { UPDATE, UNDO, REDO } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
@@ -84,7 +85,7 @@ export class DiamondDoc implements IDiamondDoc {
   constructor(
     operations: Operation[],
     ctors: DiamondStructureCtor<DiamondStructure>[],
-    options?: DiamondDocOptions
+    protected options?: DiamondDocOptions
   ) {
     this._clock = new Clock(options?.actorId ?? generateUuid());
     ctors.forEach((ctor) => {
@@ -149,6 +150,7 @@ export class DiamondDoc implements IDiamondDoc {
       id: clock.encode(),
       type: "undo",
       ids: ops.map((o) => o.id),
+      time: this.getTime(),
     };
     groupByCtorAndName(ops, (id, name, ops) => {
       if (this.hasStructure(id, name)) {
@@ -170,6 +172,7 @@ export class DiamondDoc implements IDiamondDoc {
       id: clock.encode(),
       type: "redo",
       ids: ops.map((o) => o.id),
+      time: this.getTime(),
     };
     groupByCtorAndName(ops, (id, name, ops) => {
       if (this.hasStructure(id, name)) {
@@ -177,6 +180,13 @@ export class DiamondDoc implements IDiamondDoc {
       }
     });
     this.appendDocOp(undo);
+  }
+
+  protected getTime(): number | undefined {
+    if (this.options?.time) {
+      return Date.now();
+    }
+    return;
   }
 
   private getStructure<T extends DiamondStructure>(
@@ -255,6 +265,7 @@ export class DiamondDoc implements IDiamondDoc {
     const that = this;
     return {
       tick: () => this._clock.tick(),
+      getTime: () => that.getTime(),
       appendOperation: (operation: StructureOperation) => {
         this.vendorClock.merge(operation.id);
         const editStackName = getOrCreateFromMap(

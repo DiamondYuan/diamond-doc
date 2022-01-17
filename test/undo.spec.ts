@@ -3,7 +3,7 @@ import { TestDoc } from "./fixture/test-doc";
 import { EditStackService } from "../src/undo";
 
 it("test map", () => {
-  const doc = new TestDoc([], "a");
+  const doc = new TestDoc([], { actorId: "a" });
   const undoManager = doc.createOperationManager(EditStackService);
   const map = doc.getMap();
   undoManager.track(map);
