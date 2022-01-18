@@ -30,7 +30,7 @@ interface LinkNode {
   value: ValueDescription;
 }
 
-export class DiamondArray<E extends DiamondDocValueType>
+export class DiamondArray<E extends DiamondDocValueType = DiamondDocValueType>
   implements DiamondStructure
 {
   static structureCtorId: string = "DiamondArray";

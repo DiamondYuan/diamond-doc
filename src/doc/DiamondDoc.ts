@@ -16,7 +16,7 @@ import {
 } from "../types";
 import { UPDATE, UNDO, REDO } from "../constants";
 import { mergeAndSortOperations } from "../utils/merge";
-import { getOrCreateFromMap } from "../utils/get-or-create";
+import { getOrInit } from "../base/map";
 import { getValueDescription, getValue } from "../utils/value-description";
 import { isStructureOperation } from "..//utils/is-diamond-structure";
 import { StructureStore } from "./structure-store";
@@ -39,7 +39,7 @@ class StructureStoreMap {
     new Map();
 
   get(structureCtorId: string, name: string): StructureStore {
-    return getOrCreateFromMap(
+    return getOrInit(
       this.structureEditorStackMap,
       structureCtorId,
       name,
@@ -135,7 +135,7 @@ export class DiamondDoc implements IDiamondDoc {
   createOperationManager(Ctor: EditStackCtor, name?: string): EditStack {
     const managerName = name ?? generateUuid();
     const handler = (s: DiamondStructure) => {
-      getOrCreateFromMap(
+      getOrInit(
         this.structureEditorStackMap,
         s.structureCtorId,
         s.structureName,
@@ -200,7 +200,7 @@ export class DiamondDoc implements IDiamondDoc {
     structureCtorId: string,
     structureName: string
   ): T {
-    return getOrCreateFromMap<T>(
+    return getOrInit<T>(
       this.structureMap,
       structureCtorId,
       structureName,
@@ -275,7 +275,7 @@ export class DiamondDoc implements IDiamondDoc {
       getTime: () => that.getTime(),
       appendOperation: (operation: StructureOperation) => {
         this.vendorClock.merge(operation.id);
-        const editStackName = getOrCreateFromMap(
+        const editStackName = getOrInit(
           this.structureEditorStackMap,
           operation.structureCtorId,
           operation.structureName,

@@ -1,5 +1,5 @@
 import { StructureOperation } from "src";
-import { getOrCreateFromMap } from "./get-or-create";
+import { getOrInit } from "../base/map";
 
 type Callback = (
   structureCtorId: string,
@@ -13,7 +13,7 @@ export function groupByCtorAndName(
 ) {
   const temp: Map<string, Map<string, StructureOperation[]>> = new Map();
   for (const op of ops) {
-    getOrCreateFromMap<StructureOperation[]>(
+    getOrInit<StructureOperation[]>(
       temp,
       op.structureCtorId,
       op.structureName,

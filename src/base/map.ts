@@ -1,4 +1,4 @@
-export function getOrCreateFromMap<T>(
+export function getOrInit<T>(
   map: Map<string, Map<string, unknown>>,
   first: string,
   second: string,
