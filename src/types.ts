@@ -33,6 +33,7 @@ export interface IDiamondDocVersion {
   [actorId: string]: number;
 }
 export interface IDiamondDoc {
+  readonly clock: EncodedClock;
   readonly version: IDiamondDocVersion;
   readonly operations: Operation[];
   get<T extends DiamondStructure>(

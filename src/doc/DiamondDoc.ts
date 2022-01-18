@@ -98,6 +98,10 @@ export class DiamondDoc implements IDiamondDoc {
     this.build(operations);
   }
 
+  get clock() {
+    return this._clock.encode();
+  }
+
   get operations() {
     let res: Operation[] = this.docOps;
     this.structureStoreMap.forEach((e: any) => {

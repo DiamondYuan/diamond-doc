@@ -30,7 +30,9 @@ interface LinkNode {
   value: ValueDescription;
 }
 
-export class DiamondArray implements DiamondStructure {
+export class DiamondArray<E extends DiamondDocValueType>
+  implements DiamondStructure
+{
   static structureCtorId: string = "DiamondArray";
   public readonly structureCtorId = "DiamondArray";
   private data: { id: EncodedClock; value: ValueDescription }[] = [];
@@ -117,7 +119,7 @@ export class DiamondArray implements DiamondStructure {
     this.data = data;
   }
 
-  push(value: DiamondDocValueType): void {
+  push(value: E): void {
     if (this.data.length === 0) {
       this.makeAddRightOperation(null, value);
     } else {
@@ -140,17 +142,15 @@ export class DiamondArray implements DiamondStructure {
     this.data.splice(index, 1);
   }
 
-  insert(leftIndex: number, value: DiamondDocValueType): void {
+  insert(leftIndex: number, value: E): void {
     this.makeAddRightOperation(leftIndex, value);
   }
-  unshift(value: DiamondDocValueType): void {
+
+  unshift(value: E): void {
     this.makeAddRightOperation(null, value);
   }
 
-  private makeAddRightOperation(
-    index: null | number,
-    value: DiamondDocValueType
-  ): void {
+  private makeAddRightOperation(index: null | number, value: E): void {
     let left: EncodedClock | null = null;
     if (index !== null) {
       left = this.data[index].id;
@@ -177,7 +177,7 @@ export class DiamondArray implements DiamondStructure {
     }
   }
 
-  toJS(): DiamondDocValueType[] {
-    return this.data.map((p) => this.context.getRawValue(p.value));
+  toJS(): E[] {
+    return this.data.map((p) => this.context.getRawValue(p.value)) as E[];
   }
 }
