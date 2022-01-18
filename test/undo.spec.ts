@@ -1,12 +1,12 @@
 import { TestDoc } from "./fixture/test-doc";
 
-import { EditStackService } from "../src/undo";
+import { UndoRedoService } from "../src/undo";
 
 it("test map", () => {
   const doc = new TestDoc([], {
     actorId: "c1ba110c-f865-4a5e-a1a7-ae054aa6f0ab",
   });
-  const undoManager = doc.createOperationManager(EditStackService);
+  const undoManager = doc.createUndoRedoService(UndoRedoService);
   const map = doc.getMap();
   undoManager.track(map);
   map.set("a", "0");
@@ -22,7 +22,7 @@ it("test map", () => {
 it("test array", () => {
   const doc = new TestDoc();
   const remote = new TestDoc();
-  const undoManager = doc.createOperationManager(EditStackService);
+  const undoManager = doc.createUndoRedoService(UndoRedoService);
   const array = doc.getArray("arr");
   undoManager.track(array);
   array.push("1");
@@ -50,7 +50,7 @@ it("test array", () => {
 
 it("test canRedo and canUndo", () => {
   const doc = new TestDoc();
-  const undoManager = doc.createOperationManager(EditStackService);
+  const undoManager = doc.createUndoRedoService(UndoRedoService);
   const array = doc.getArray("arr");
   array.push("0");
   undoManager.track(array);
@@ -76,7 +76,7 @@ it("test canRedo and canUndo", () => {
 
 it("test array", () => {
   const doc = new TestDoc();
-  const undoManager = doc.createOperationManager(EditStackService);
+  const undoManager = doc.createUndoRedoService(UndoRedoService);
   const array = doc.getArray("arr");
   undoManager.track(array);
   const cache: number[][] = [[]];

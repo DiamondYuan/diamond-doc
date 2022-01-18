@@ -6,7 +6,7 @@ import {
   Operation,
 } from "../src";
 import { Clock, Ordering } from "../src/clock";
-import { EditStackService } from "../src/undo";
+import { UndoRedoService } from "../src/undo";
 import { TestDoc } from "./fixture/test-doc";
 
 class ThrowArray extends DiamondArray {
@@ -44,7 +44,7 @@ it("operation sort", () => {
 it("set option.time true, every operation has time", () => {
   const startTime = Date.now();
   const doc = new TestDoc([], { time: true });
-  const undoManager = doc.createOperationManager(EditStackService);
+  const undoManager = doc.createUndoRedoService(UndoRedoService);
   const arr = doc.getArray("test");
   undoManager.track(arr);
   arr.push("1");

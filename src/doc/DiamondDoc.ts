@@ -1,4 +1,4 @@
-import { EditStack, EditStackCtor } from "./../undo";
+import { IUndoRedoService, UndoRedoServiceCtor } from "./../undo";
 import { VendorClock } from "./../vendor-clock";
 import { Clock, EncodedClock } from "../clock";
 import { generateUuid, isUUID } from "../base/uuid";
@@ -74,7 +74,7 @@ export class DiamondDoc implements IDiamondDoc {
   private structureMap: Map<string, Map<string, DiamondStructure>> = new Map();
   private structureEditorStackMap: Map<string, Map<string, DiamondStructure>> =
     new Map();
-  private editorStackMap: Map<string, EditStack> = new Map();
+  private editorStackMap: Map<string, IUndoRedoService> = new Map();
   private vendorClock: VendorClock = new VendorClock();
   get version(): IDiamondDocVersion {
     return this.vendorClock.version();
@@ -132,7 +132,10 @@ export class DiamondDoc implements IDiamondDoc {
     return;
   }
 
-  createOperationManager(Ctor: EditStackCtor, name?: string): EditStack {
+  createUndoRedoService(
+    Ctor: UndoRedoServiceCtor,
+    name?: string
+  ): IUndoRedoService {
     const managerName = name ?? generateUuid();
     const handler = (s: DiamondStructure) => {
       getOrInit(

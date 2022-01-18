@@ -1,19 +1,17 @@
 import { Operation, DiamondStructure } from "./types";
 
-
-
 export interface UndoManagerOption {
   name: string;
-  handlerTrack: (structure: DiamondStructure) => void
-  handleUndo(ops: Operation[]): void
-  handleRedo(ops: Operation[]): void
+  handlerTrack: (structure: DiamondStructure) => void;
+  handleUndo(ops: Operation[]): void;
+  handleRedo(ops: Operation[]): void;
 }
 
-export interface EditStackCtor {
-  new(options: UndoManagerOption): EditStack;
+export interface UndoRedoServiceCtor {
+  new (options: UndoManagerOption): IUndoRedoService;
 }
 
-export interface EditStack {
+export interface IUndoRedoService {
   readonly name: string;
   pushStackElement(): void;
 
@@ -26,63 +24,59 @@ export interface EditStack {
   track(structure: DiamondStructure): void;
 }
 
-export class EditStackService {
+export class UndoRedoService {
+  private operations: Operation[] = [];
+  private undoStack: Array<Operation[]> = [];
+  private redoStack: Array<Operation[]> = [];
 
-  private operations: Operation[] = []
-  private undoStack: Array<Operation[]> = []
-  private redoStack: Array<Operation[]> = []
-
-  constructor(
-    private options: UndoManagerOption
-  ) {
-    this.operations = []
+  constructor(private options: UndoManagerOption) {
+    this.operations = [];
   }
 
   get name() {
-    return this.options.name
+    return this.options.name;
   }
 
   pushStackElement() {
     const undoLogs = [...this.operations];
-    this.undoStack.push(undoLogs)
-    this.operations = []
+    this.undoStack.push(undoLogs);
+    this.operations = [];
   }
 
   redo() {
     if (!this.canRedo()) {
-      return
+      return;
     }
     const stack = this.redoStack.pop()!;
-    this.options.handleRedo(stack)
+    this.options.handleRedo(stack);
   }
 
   canUndo() {
-    return this.operations.length > 0 || this.undoStack.length > 0
+    return this.operations.length > 0 || this.undoStack.length > 0;
   }
 
   canRedo() {
-    return this.redoStack.length > 0
+    return this.redoStack.length > 0;
   }
 
   undo() {
     if (!this.canUndo()) {
-      return
+      return;
     }
     let undoLogs = [...this.operations];
     if (undoLogs.length === 0) {
       undoLogs = this.undoStack.pop()!;
     }
-    this.options.handleUndo(undoLogs)
-    this.operations = []
-    this.redoStack.push(undoLogs)
+    this.options.handleUndo(undoLogs);
+    this.operations = [];
+    this.redoStack.push(undoLogs);
   }
 
   track(structure: DiamondStructure): void {
-    this.options.handlerTrack(structure)
+    this.options.handlerTrack(structure);
   }
   applyOperation(op: Operation): void {
-    this.operations.push(op)
-    this.redoStack = []
+    this.operations.push(op);
+    this.redoStack = [];
   }
 }
-
