@@ -159,7 +159,7 @@ export class DiamondArray<E extends DiamondDocValueType = DiamondDocValueType>
     const op: DiamondArrayAddRight = {
       id: id.encode(),
       type: "addRight",
-      value: this.context.getValueDescription(value),
+      value: this.context.wrapValue(value),
       left,
       structureCtorId: this.structureCtorId,
       structureName: this.structureName,
@@ -168,7 +168,7 @@ export class DiamondArray<E extends DiamondDocValueType = DiamondDocValueType>
     this.context.appendOperation(op);
     const data = {
       id: id.encode(),
-      value: this.context.getValueDescription(value),
+      value: this.context.wrapValue(value),
     };
     if (index === null) {
       this.data.unshift(data);
@@ -178,6 +178,6 @@ export class DiamondArray<E extends DiamondDocValueType = DiamondDocValueType>
   }
 
   toJS(): E[] {
-    return this.data.map((p) => this.context.getRawValue(p.value)) as E[];
+    return this.data.map((p) => this.context.unwrapValue(p.value)) as E[];
   }
 }

@@ -23,8 +23,8 @@ export type Operation = StructureOperation | DocumentOperation;
 export interface IDiamondDocContext {
   tick: () => Clock;
   appendOperation(operation: BasicOperation): void;
-  getValueDescription(value: DiamondDocValueType): ValueDescription;
-  getRawValue(value: ValueDescription): DiamondDocValueType;
+  wrapValue(value: DiamondDocValueType): ValueDescription;
+  unwrapValue(value: ValueDescription): DiamondDocValueType;
   getStore(): StructureStore;
   getTime(): number | undefined;
 }

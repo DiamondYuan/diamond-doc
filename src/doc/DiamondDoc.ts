@@ -291,12 +291,12 @@ export class DiamondDoc implements IDiamondDoc {
         }
         this.structureStoreMap.append(operation);
       },
-      getRawValue: (v: ValueDescription) => {
+      unwrapValue: (v: ValueDescription) => {
         return getValue(v, (structureCtorId: string, structureName: string) => {
           return that.getStructure(structureCtorId, structureName);
         });
       },
-      getValueDescription,
+      wrapValue: getValueDescription,
       getStore() {
         return that.structureStoreMap.get(structureCtorId, structureName);
       },

@@ -72,7 +72,7 @@ export class DiamondMap implements DiamondStructure {
   }
 
   set(key: string, value: DiamondDocValueType) {
-    const internalValue = this.context.getValueDescription(value);
+    const internalValue = this.context.wrapValue(value);
     const op: DiamondMap_Set = {
       id: this.context.tick().encode(),
       key: key,
@@ -101,14 +101,14 @@ export class DiamondMap implements DiamondStructure {
 
   get(key: string): DiamondDocValueType | undefined {
     if (this.data.has(key)) {
-      return this.context.getRawValue(this.data.get(key)!);
+      return this.context.unwrapValue(this.data.get(key)!);
     }
   }
 
   toJS(): Map<string, DiamondDocValueType> {
     const js = new Map<string, DiamondDocValueType>();
     this.data.forEach((value, key) =>
-      js.set(key, this.context.getRawValue(value))
+      js.set(key, this.context.unwrapValue(value))
     );
     return js;
   }
