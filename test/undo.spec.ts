@@ -77,13 +77,13 @@ it("test canRedo and canUndo", () => {
 it("test array", () => {
   const doc = new TestDoc();
   const undoManager = doc.createUndoRedoService(UndoRedoService);
-  const array = doc.getArray("arr");
+  const array = doc.getArray<number>("arr");
   undoManager.track(array);
   const cache: number[][] = [[]];
   for (let i = 0; i < 10; i++) {
     array.push(i);
     undoManager.pushStackElement();
-    cache.push([...(array.toJS() as number[])]);
+    cache.push([...array.toJS()]);
   }
 
   for (let i = 0; i < 10; i++) {
