@@ -19,7 +19,17 @@ export interface DiamondMap_Del extends StructureOperation {
 }
 
 export type DiamondMapOperation = DiamondMap_Set | DiamondMap_Del;
-export class DiamondMap implements DiamondStructure {
+
+interface BasicSchema {
+  [key: string]: DiamondDocValueType;
+  [key: number]: DiamondDocValueType;
+  [key: symbol]: unknown;
+}
+export class DiamondMap<
+  S extends BasicSchema = BasicSchema,
+  V extends DiamondDocValueType = DiamondDocValueType
+> implements DiamondStructure
+{
   static structureCtorId: string = "DiamondMap";
   public readonly structureCtorId = "DiamondMap";
   private data: Map<string, ValueDescription>;
@@ -71,6 +81,8 @@ export class DiamondMap implements DiamondStructure {
     this.data = data;
   }
 
+  set<K extends keyof S>(key: K, value: S[K]): void;
+  set(key: string, value: V): void;
   set(key: string, value: DiamondDocValueType) {
     const internalValue = this.context.wrapValue(value);
     const op: DiamondMap_Set = {
@@ -86,6 +98,8 @@ export class DiamondMap implements DiamondStructure {
     this.data.set(key, internalValue);
   }
 
+  delete<K extends keyof S>(key: K): void;
+  delete(key: string): void;
   delete(key: string) {
     const op: DiamondMap_Del = {
       id: this.context.tick().encode(),
@@ -99,16 +113,18 @@ export class DiamondMap implements DiamondStructure {
     this.data.delete(key);
   }
 
+  get<K extends keyof S>(key: K): S[K] | undefined;
+  get<V>(key: string): V;
   get(key: string): DiamondDocValueType | undefined {
     if (this.data.has(key)) {
       return this.context.unwrapValue(this.data.get(key)!);
     }
   }
 
-  toJS(): Map<string, DiamondDocValueType> {
-    const js = new Map<string, DiamondDocValueType>();
+  toJS(): Map<string, V> {
+    const js = new Map<string, V>();
     this.data.forEach((value, key) =>
-      js.set(key, this.context.unwrapValue(value))
+      js.set(key, this.context.unwrapValue(value) as V)
     );
     return js;
   }

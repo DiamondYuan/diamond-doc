@@ -91,3 +91,14 @@ it("test delete and add", () => {
   expect(map_remote.get("key")).toEqual(undefined);
   expect(map_remote.get("key")).toEqual(undefined);
 });
+
+it("type", () => {
+  const remote = new DiamondDoc([], [DiamondMap]);
+  const map_local = remote.get<DiamondMap<{ name: string; createdAt: number }>>(
+    DiamondMap,
+    "music_props"
+  );
+
+  const created_at: number = map_local.get("createdAt")!;
+  const not_in_schema = map_local.get<string>("name");
+});
