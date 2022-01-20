@@ -76,3 +76,14 @@ it("actorId is not uuid, expect throw", () => {
     expect((error as Error).message).toEqual("actorId should be uuid");
   }
 });
+
+it("if doc not changed, expect get undefined", () => {
+  const doc = new TestDoc([], { time: true });
+  const arr = doc.getArray("test");
+  arr.push("1");
+  arr.push("2");
+
+  const remote = new TestDoc(doc.operations, { time: true });
+  const actorId = remote.clock[0];
+  expect(remote.version[actorId]).toEqual(undefined);
+});
