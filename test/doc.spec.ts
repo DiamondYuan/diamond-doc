@@ -77,7 +77,7 @@ it("actorId is not uuid, expect throw", () => {
   }
 });
 
-it("if doc not changed, expect get undefined", () => {
+it("if doc not local changed, expect get undefined", () => {
   const doc = new TestDoc([], { time: true });
   const arr = doc.getArray("test");
   arr.push("1");
