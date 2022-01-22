@@ -94,11 +94,18 @@ it("test delete and add", () => {
 
 it("type", () => {
   const remote = new DiamondDoc([], [DiamondMap]);
-  const map_local = remote.get<DiamondMap<{ name: string; createdAt: number }>>(
+  interface MusicSchema {
+    play: number;
+    title: string;
+    createdAt: number;
+    fun: Function;
+  }
+  const map_local = remote.get<DiamondMap<MusicSchema>>(
     DiamondMap,
     "music_props"
   );
 
   const created_at: number = map_local.get("createdAt")!;
-  const not_in_schema = map_local.get<string>("name");
+  const not_in_schema = map_local.get<string>("not_in_schema");
+  const fun = map_local.get("fun");
 });

@@ -20,13 +20,12 @@ export interface DiamondMap_Del extends StructureOperation {
 
 export type DiamondMapOperation = DiamondMap_Set | DiamondMap_Del;
 
-interface BasicSchema {
-  [key: string]: DiamondDocValueType;
-  [key: number]: DiamondDocValueType;
-  [key: symbol]: unknown;
-}
+type ValueType<S, K extends keyof S> = S[K] extends DiamondDocValueType
+  ? S[K]
+  : DiamondDocValueType;
+
 export class DiamondMap<
-  S extends BasicSchema = BasicSchema,
+  S = unknown,
   V extends DiamondDocValueType = DiamondDocValueType
 > implements DiamondStructure
 {
@@ -81,7 +80,7 @@ export class DiamondMap<
     this.data = data;
   }
 
-  set<K extends keyof S>(key: K, value: S[K]): void;
+  set<K extends keyof S>(key: K, value: ValueType<S, K>): void;
   set(key: string, value: V): void;
   set(key: string, value: DiamondDocValueType) {
     const internalValue = this.context.wrapValue(value);
@@ -113,7 +112,7 @@ export class DiamondMap<
     this.data.delete(key);
   }
 
-  get<K extends keyof S>(key: K): S[K] | undefined;
+  get<K extends keyof S>(key: K): ValueType<S, K> | undefined;
   get<V>(key: string): V;
   get(key: string): DiamondDocValueType | undefined {
     if (this.data.has(key)) {
