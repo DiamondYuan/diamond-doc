@@ -1,4 +1,5 @@
-import { DiamondDoc, DiamondMap } from "../../src";
+import { assert, IsExact } from "./../type-test";
+import { DiamondDoc, DiamondDocValueType, DiamondMap } from "../../src";
 
 function expectEquals(map: DiamondMap) {
   return {
@@ -92,7 +93,7 @@ it("test delete and add", () => {
   expect(map_remote.get("key")).toEqual(undefined);
 });
 
-it("type", () => {
+it("test type", () => {
   const remote = new DiamondDoc([], [DiamondMap]);
   interface MusicSchema {
     play: number;
@@ -105,7 +106,12 @@ it("type", () => {
     "music_props"
   );
 
-  const created_at: number = map_local.get("createdAt")!;
+  const created_at = map_local.get("createdAt")!;
+  assert<IsExact<typeof created_at, number>>(true);
+
   const not_in_schema = map_local.get<string>("not_in_schema");
-  const fun = map_local.get<string>("fun");
+  assert<IsExact<typeof not_in_schema, string>>(true);
+
+  const fun = map_local.get("fun");
+  assert<IsExact<typeof fun, DiamondDocValueType>>(true);
 });
