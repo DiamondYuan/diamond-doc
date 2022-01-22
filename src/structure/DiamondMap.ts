@@ -20,13 +20,11 @@ export interface DiamondMap_Del extends StructureOperation {
 
 export type DiamondMapOperation = DiamondMap_Set | DiamondMap_Del;
 
-type ValueType<S, K extends keyof S> = S[K] extends DiamondDocValueType
-  ? S[K]
-  : DiamondDocValueType;
+type ValueType<S, K extends keyof S, D> = S[K] extends D ? S[K] : D;
 
 export class DiamondMap<
   S = unknown,
-  V extends DiamondDocValueType = DiamondDocValueType
+  D extends DiamondDocValueType = DiamondDocValueType
 > implements DiamondStructure
 {
   static structureCtorId: string = "DiamondMap";
@@ -80,8 +78,8 @@ export class DiamondMap<
     this.data = data;
   }
 
-  set<K extends keyof S>(key: K, value: ValueType<S, K>): void;
-  set(key: string, value: V): void;
+  set<K extends keyof S>(key: K, value: ValueType<S, K, D>): void;
+  set(key: string, value: D): void;
   set(key: string, value: DiamondDocValueType) {
     const internalValue = this.context.wrapValue(value);
     const op: DiamondMap_Set = {
@@ -112,7 +110,7 @@ export class DiamondMap<
     this.data.delete(key);
   }
 
-  get<K extends keyof S>(key: K): ValueType<S, K> | undefined;
+  get<K extends keyof S>(key: K): ValueType<S, K, D> | undefined;
   get<V>(key: string): V;
   get(key: string): DiamondDocValueType | undefined {
     if (this.data.has(key)) {
@@ -120,10 +118,10 @@ export class DiamondMap<
     }
   }
 
-  toJS(): Map<string, V> {
-    const js = new Map<string, V>();
+  toJS(): Map<string, D> {
+    const js = new Map<string, D>();
     this.data.forEach((value, key) =>
-      js.set(key, this.context.unwrapValue(value) as V)
+      js.set(key, this.context.unwrapValue(value) as D)
     );
     return js;
   }

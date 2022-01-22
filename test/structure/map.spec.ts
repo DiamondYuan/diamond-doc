@@ -107,5 +107,5 @@ it("type", () => {
 
   const created_at: number = map_local.get("createdAt")!;
   const not_in_schema = map_local.get<string>("not_in_schema");
-  const fun = map_local.get("fun");
+  const fun = map_local.get<string>("fun");
 });
