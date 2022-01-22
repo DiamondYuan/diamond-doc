@@ -118,11 +118,11 @@ export class DiamondMap<
     }
   }
 
-  toJS(): Map<string, D> {
-    const js = new Map<string, D>();
-    this.data.forEach((value, key) =>
-      js.set(key, this.context.unwrapValue(value) as D)
-    );
+  toJS(): Partial<S> & Record<string | number, D> {
+    const js: Partial<S> & Record<string | number, D> = {};
+    this.data.forEach((value, key: any) => {
+      js[key] = this.context.unwrapValue(value) as any;
+    });
     return js;
   }
 }

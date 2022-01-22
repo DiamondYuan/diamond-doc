@@ -60,7 +60,7 @@ it("value", () => {
     expect(testData[i] === remoteMap.get(`${i}`)).toBeTruthy();
   }
 
-  expect(remoteTestMap === remoteMap.toJS().get("map")).toBeTruthy();
+  expect(remoteTestMap === remoteMap.toJS()["map"]).toBeTruthy();
   expect(remoteTestMap.get("test-key")).toEqual("test-value");
 });
 
@@ -113,5 +113,5 @@ it("test type", () => {
   assert<IsExact<typeof not_in_schema, string>>(true);
 
   const fun = map_local.get("fun");
-  assert<IsExact<typeof fun, DiamondDocValueType>>(true);
+  assert<IsExact<typeof fun, DiamondDocValueType | undefined>>(true);
 });
