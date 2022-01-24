@@ -99,48 +99,49 @@ describe("test type", () => {
     number_key: number;
     number_or_string_key: number | string;
     function_key: Function;
-
-    play: number;
-    title: string;
   }
   const map_local = remote.get<DiamondMap<TestSchema>>(
     DiamondMap,
     "music_props"
   );
-  describe("if key in schema", () => {
-    it("give correct type", () => {
-      map_local.set("number_key", Date.now());
-      map_local.set("number_or_string_key", Date.now());
-      map_local.set("number_or_string_key", `Date.now()`);
-    });
-    it("give wrong value should throw", () => {
-      //@ts-expect-error
-      map_local.set("number_key", "now");
-      //@ts-expect-error
-      map_local.set("number_key", true);
 
-      //@ts-expect-error
-      map_local.set("number_or_string_key", true);
-    });
+  function createMap<
+    Schema = unknown,
+    RestType extends DiamondDocValueType = DiamondDocValueType
+  >() {
+    const doc = new DiamondDoc([], [DiamondMap]);
+    return doc.get<DiamondMap<Schema, RestType>>(DiamondMap, "map_for test");
+  }
 
-    describe("if value type not extend DiamondType", () => {
-      it("will ignore value type", () => {
-        map_local.set("function_key", "now");
-        map_local.set("function_key", true);
-        map_local.set("function_key", 1);
+  describe("test map.set", () => {
+    describe("if schema[key] extends DiamondDocValueType", () => {
+      it("give correct type", () => {
+        createMap<TestSchema>().set("number_key", Date.now());
+        createMap<TestSchema>().set("number_or_string_key", Date.now());
+        createMap<TestSchema>().set("number_or_string_key", "2021-09-30");
       });
-      it("will ignore value type", () => {
-        const v = map_local.get("function_key");
-        assert<IsExact<typeof v, DiamondDocValueType | undefined>>(true);
-
-        const v2 = map_local.get<string>("function_key");
-        assert<IsExact<typeof v2, string>>(true);
+      it("give wrong value should throw", () => {
+        //@ts-expect-error
+        createMap<TestSchema>().set("number_key", "now");
+        //@ts-expect-error
+        createMap<TestSchema>().set("number_key", true);
+        //@ts-expect-error
+        createMap<TestSchema>().set("number_or_string_key", true);
       });
     });
-  });
-
-  it("if not in schema", () => {
-    const not_in_schema = map_local.get<string>("not_in_schema");
-    assert<IsExact<typeof not_in_schema, string>>(true);
+    describe("if schema[key] not extends DiamondDocValueType", () => {
+      describe("key not exists in keyof schema", () => {
+        it("will ignore value type", () => {
+          createMap<TestSchema>().set("not_in_schema", "now");
+          createMap<TestSchema>().set("not_in_schema", true);
+          createMap<TestSchema>().set("not_in_schema", 1);
+        });
+      });
+      describe("if value type is Function", () => {
+        createMap<TestSchema>().set("function_key", "now");
+        createMap<TestSchema>().set("function_key", true);
+        createMap<TestSchema>().set("function_key", 1);
+      });
+    });
   });
 });
