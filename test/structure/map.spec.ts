@@ -138,9 +138,11 @@ describe("test type", () => {
         });
       });
       describe("if value type is Function", () => {
-        createMap<TestSchema>().set("function_key", "now");
-        createMap<TestSchema>().set("function_key", true);
-        createMap<TestSchema>().set("function_key", 1);
+        it("will ignore value type", () => {
+          createMap<TestSchema>().set("function_key", "now");
+          createMap<TestSchema>().set("function_key", true);
+          createMap<TestSchema>().set("function_key", 1);
+        });
       });
     });
   });
