@@ -12,13 +12,9 @@ export type SubType<Base, Condition> = Pick<
 export type SubTypeKeys<Base, Condition> = keyof SubType<Base, Condition>;
 
 export type SchemaType<T> = {
-  readonly [P in keyof T]: DiamondDocValueType;
+  [P in keyof T]: DiamondDocValueType;
 } & object;
 
-// function test<T extends SchemaType<T> = {}>(): T {
-//   return {} as any as T;
-// }
-
-// const a = test();
-
-// type a = Readonly<{ a: number }>;
+export type PartialSchemaType<T> = {
+  [P in keyof T]?: DiamondDocValueType;
+} & object;

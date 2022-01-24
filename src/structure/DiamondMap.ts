@@ -1,3 +1,4 @@
+import { PartialSchemaType } from "./../base/type";
 import {
   ValueDescription,
   DiamondDocValueType,
@@ -21,9 +22,9 @@ export interface DiamondMap_Del extends StructureOperation {
 
 export type DiamondMapOperation = DiamondMap_Set | DiamondMap_Del;
 
-type ValueType<S, K extends keyof S, D> = S[K] extends D ? S[K] : D;
-
 type ExcludeScheme<T, S> = T extends keyof S ? "key is reserved!" : T;
+
+type MapValue<S, D> = S & Record<string, D | undefined>;
 
 export class DiamondMap<
   S extends SchemaType<S> = {},
@@ -81,7 +82,7 @@ export class DiamondMap<
     this.data = data;
   }
 
-  set<K extends keyof S>(key: K, value: S[K]): void;
+  set<K extends keyof S>(key: K, value: Required<S>[K]): void;
   set<T extends string>(key: ExcludeScheme<T, S>, value: D): void;
   set(key: string, value: DiamondDocValueType) {
     const internalValue = this.context.wrapValue(value);
@@ -113,19 +114,20 @@ export class DiamondMap<
     this.data.delete(key);
   }
 
-  get<K extends keyof S>(key: K): ValueType<S, K, D> | undefined;
-  get<V>(key: string): V;
+  get<K extends keyof S = keyof S>(key: K): S[K] | undefined;
+  get<V extends DiamondDocValueType | undefined, K = unknown>(key: K): V;
   get(key: string): DiamondDocValueType | undefined {
     if (this.data.has(key)) {
       return this.context.unwrapValue(this.data.get(key)!);
     }
   }
 
-  toJS(): Partial<S> & Record<string | number, D> {
-    const js: Partial<S> & Record<string | number, D> = {};
-    this.data.forEach((value, key: any) => {
-      js[key] = this.context.unwrapValue(value) as any;
+  toJS<V extends PartialSchemaType<V> = Partial<S>>(): MapValue<V, D>;
+  toJS(): MapValue<Partial<S>, D> {
+    const js: Record<string, D | undefined> = {};
+    this.data.forEach((value, key: string) => {
+      js[key] = this.context.unwrapValue(value) as unknown as D | undefined;
     });
-    return js;
+    return js as MapValue<S, D>;
   }
 }

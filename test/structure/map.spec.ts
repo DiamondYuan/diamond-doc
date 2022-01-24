@@ -95,7 +95,7 @@ it("test delete and add", () => {
 });
 
 describe("test type", () => {
-  const remote = new DiamondDoc([], [DiamondMap]);
+  const doc = new DiamondDoc([], [DiamondMap]);
   interface TestSchema {
     number_key: number;
     number_or_string_key: number | string;
@@ -108,6 +108,23 @@ describe("test type", () => {
     const doc = new DiamondDoc([], [DiamondMap]);
     return doc.get<DiamondMap<Schema, RestType>>(DiamondMap, "map_for test");
   }
+
+  it("test generics", () => {
+    //@ts-expect-error
+    doc.get<DiamondMap<{ name: Function }>>(DiamondMap, "map_for test");
+
+    //@ts-expect-error
+    doc.get<DiamondMap<{ name: undefined }>>(DiamondMap, "map_for test");
+
+    //@ts-expect-error
+    doc.get<DiamondMap<{ name: {} }>>(DiamondMap, "map_for test");
+
+    doc.get<DiamondMap<{ name?: string }>>(DiamondMap, "map_for test");
+    doc.get<DiamondMap<{ name: DiamondMap | null }>>(
+      DiamondMap,
+      "map_for test"
+    );
+  });
 
   describe("test map.set", () => {
     describe("if schema[key] extends DiamondDocValueType", () => {
@@ -124,6 +141,15 @@ describe("test type", () => {
         //@ts-expect-error
         createMap<TestSchema>().set("number_or_string_key", true);
       });
+
+      it("value is required", () => {
+        try {
+          //@ts-expect-error
+          createMap<{ name?: string }>().set("name", undefined);
+        } catch (error: any) {
+          expect(error.message).toEqual("Unsupported type of value: undefined");
+        }
+      });
     });
     describe("if schema[key] not extends DiamondDocValueType", () => {
       describe("key not exists in keyof schema", () => {
@@ -133,13 +159,43 @@ describe("test type", () => {
           createMap<TestSchema>().set("not_in_schema", 1);
         });
       });
-      describe("if value type is Function", () => {
-        it("will ignore value type", () => {
-          createMap<TestSchema>().set("function_key", "now");
-          createMap<TestSchema>().set("function_key", true);
-          createMap<TestSchema>().set("function_key", 1);
-        });
-      });
     });
+  });
+
+  it("test map.get", () => {
+    let foo = createMap<TestSchema>().get("number_or_string_key");
+    assert<IsExact<typeof foo, string | number | undefined>>(true);
+
+    let foo2 = createMap<TestSchema>().get<string>("number_or_string_key");
+    assert<IsExact<typeof foo2, string>>(true);
+
+    //TODO expect get error?
+    let foo3 = createMap<TestSchema>().get<boolean>("number_or_string_key");
+
+    let foo4 = createMap<TestSchema>().get<string | undefined>("not_in_schema");
+    assert<IsExact<typeof foo4, string | undefined>>(true);
+
+    let foo5 = createMap<TestSchema>().get("not_in_schema");
+    assert<IsExact<typeof foo5, DiamondDocValueType | undefined>>(true);
+
+    let foo6 = createMap<TestSchema>().get<string>("not_in_schema");
+    assert<IsExact<typeof foo6, string>>(true);
+  });
+
+  it("test toJS", () => {
+    const v = createMap<TestSchema>().toJS();
+    assert<IsExact<typeof v["number_key"], number | undefined>>(true);
+    type aaa = typeof v["not_in_schema"];
+    assert<IsExact<typeof v["not_in_schema"], DiamondDocValueType | undefined>>(
+      true
+    );
+
+    const v1 = createMap<TestSchema>().toJS<TestSchema>();
+    v1["number_key"];
+    assert<IsExact<typeof v1["number_key"], number>>(true);
+    assert<IsExact<typeof v1["number_or_string_key"], string | number>>(true);
+
+    const v2 = createMap<TestSchema>().toJS<{ name: string }>();
+    assert<IsExact<typeof v2["name"], string>>(true);
   });
 });
