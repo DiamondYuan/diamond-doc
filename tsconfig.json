@@ -4,13 +4,14 @@
     "target": "ES2015",
     "module": "CommonJS",
     "baseUrl": ".",
-    "rootDir": "./src",
+    "rootDir": "./",
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
   },
   "include": [
+    "test/**/*.ts",
     "src/**/*.ts",
   ]
 }

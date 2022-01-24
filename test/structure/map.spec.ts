@@ -1,5 +1,6 @@
 import { assert, IsExact } from "./../type-test";
 import { DiamondDoc, DiamondDocValueType, DiamondMap } from "../../src";
+import { SchemaType } from "src/base/type";
 
 function expectEquals(map: DiamondMap) {
   return {
@@ -98,15 +99,10 @@ describe("test type", () => {
   interface TestSchema {
     number_key: number;
     number_or_string_key: number | string;
-    function_key: Function;
   }
-  const map_local = remote.get<DiamondMap<TestSchema>>(
-    DiamondMap,
-    "music_props"
-  );
 
   function createMap<
-    Schema = unknown,
+    Schema extends SchemaType<Schema> = {},
     RestType extends DiamondDocValueType = DiamondDocValueType
   >() {
     const doc = new DiamondDoc([], [DiamondMap]);
