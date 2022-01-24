@@ -6,6 +6,7 @@ import {
   StructureOperation,
 } from "../types";
 import { UPDATE, UNDO, REDO } from "../constants";
+import { SchemaType } from "src/base/type";
 
 export interface DiamondMap_Set extends StructureOperation {
   type: "set";
@@ -25,7 +26,7 @@ type ValueType<S, K extends keyof S, D> = S[K] extends D ? S[K] : D;
 type ExcludeScheme<T, S> = T extends keyof S ? "key is reserved!" : T;
 
 export class DiamondMap<
-  S = unknown,
+  S extends SchemaType<S> = {},
   D extends DiamondDocValueType = DiamondDocValueType
 > implements DiamondStructure
 {
@@ -80,7 +81,7 @@ export class DiamondMap<
     this.data = data;
   }
 
-  set<K extends keyof S>(key: K, value: ValueType<S, K, D>): void;
+  set<K extends keyof S>(key: K, value: S[K]): void;
   set<T extends string>(key: ExcludeScheme<T, S>, value: D): void;
   set(key: string, value: DiamondDocValueType) {
     const internalValue = this.context.wrapValue(value);
