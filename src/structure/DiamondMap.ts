@@ -122,7 +122,7 @@ export class DiamondMap<
     }
   }
 
-  toJS<V extends PartialSchemaType<V> = Partial<S>>(): MapValue<V, D>;
+  toJS<V extends PartialSchemaType<V, S> = Partial<S>>(): MapValue<V, D>;
   toJS(): MapValue<Partial<S>, D> {
     const js: Record<string, D | undefined> = {};
     this.data.forEach((value, key: string) => {

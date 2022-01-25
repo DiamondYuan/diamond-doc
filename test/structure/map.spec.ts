@@ -195,7 +195,20 @@ describe("test type", () => {
     assert<IsExact<typeof v1["number_key"], number>>(true);
     assert<IsExact<typeof v1["number_or_string_key"], string | number>>(true);
 
-    const v2 = createMap<TestSchema>().toJS<{ name: string }>();
+    const v2 = createMap<TestSchema, string>().toJS<{
+      name: string;
+      number_key: number;
+      number_or_string_key: number;
+    }>();
     assert<IsExact<typeof v2["name"], string>>(true);
+    assert<IsExact<typeof v2["not_in_schema"], string | undefined>>(true);
+
+    //@ts-expect-error
+    const v3 = createMap<TestSchema>().toJS<{ number_key: string }>();
+
+    //@ts-expect-error
+    const v4 = createMap<TestSchema>().toJS<{
+      number_or_string_key: boolean;
+    }>();
   });
 });

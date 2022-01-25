@@ -15,6 +15,7 @@ export type SchemaType<T> = {
   [P in keyof T]: DiamondDocValueType;
 } & object;
 
-export type PartialSchemaType<T> = {
+export type PartialSchemaType<T, S> = {
   [P in keyof T]?: DiamondDocValueType;
-} & object;
+} & object &
+  Partial<S>;
