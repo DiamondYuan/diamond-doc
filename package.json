@@ -1,12 +1,12 @@
 {
   "name": "diamond-doc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": "git@github.com:DiamondYuan/diamond-doc.git",
   "author": "DiamondYuan <admin@diamondyuan.com>",
   "license": "MIT",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "files": [
     "dist",
     "README-zh.md",
